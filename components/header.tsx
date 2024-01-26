@@ -37,7 +37,7 @@ export const Header = () => {
       icon: <Home className="h-4 w-4" />,
     },
     {
-      href: "/pacients",
+      href: "/pacient",
       label: "Lista de Pacientes",
       icon: <Home className="h-4 w-4" />,
     },

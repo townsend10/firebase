@@ -1,0 +1,14 @@
+ // const [pacientes, setPacientes] = useState<any[]>([]);
+
+  // const getPacientsx = async () => {
+  //   try {
+  //     const querySnapshot = await getDocs(collection(db, "pacient"));
+  //     const pacients = querySnapshot.docs.map((doc) => doc.data());
+  //     setPacientes(pacients);
+
+  //     // return pacients;
+  //   } catch (error) {
+  //     console.error("Error fetching pacients:", error);
+  //     throw error;
+  //   }
+  // };
