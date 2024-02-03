@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const CurrentUser = () => {
-  const router = useRouter();
-
   const auth = getAuth(firebaseApp);
   const [user, setUser] = useState(null);
 
@@ -19,9 +17,7 @@ export const CurrentUser = () => {
 
     return () => unsubscribe();
   }, [auth]);
-  // if (!user) {
-  //   router.replace("/login");
-  // }
+
   return {
     user,
     auth,

@@ -51,7 +51,7 @@ export const LoginModal = () => {
 
         <div className="text-center">
           <Button size="lg" variant={"destructive"}>
-            Cadastrar
+            Login
           </Button>
         </div>
       </form>
