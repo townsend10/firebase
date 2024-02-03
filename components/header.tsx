@@ -43,21 +43,23 @@ export const Header = () => {
     },
   ];
   return (
-    <div className="flex flex-col h-screen w-1/6 bg-gray-900 text-white">
+    <div className="flex flex-col w-10/12 scroll-mb-0  bg-gray-900 text-white">
       <div className="flex items-center justify-center">
         <h1 className="text-2xl font-bold my-4 text-yellow-300">Firebase</h1>
         <LogOutButton />
       </div>
-
-      {router.map((route) => (
-        <Link
-          href={route.href}
-          key={route.href}
-          className="flex items-center my-2 px-4 py-2 hover:bg-gray-700">
-          {route.icon}
-          <div className="ml-2">{route.label}</div>
-        </Link>
-      ))}
+      <Separator />
+      <div className="flex-grow overflow-y-auto">
+        {router.map((route) => (
+          <Link
+            href={route.href}
+            key={route.href}
+            className="flex items-center my-2 px-4 py-2 hover:bg-gray-700">
+            {route.icon}
+            <div className="ml-2">{route.label}</div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };
