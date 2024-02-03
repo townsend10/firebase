@@ -18,6 +18,15 @@ import { ReturnType, InputType } from "./types";
 const handler = async (): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
+  const { currentUser } = getAuth(firebaseApp);
+
+  if (!currentUser) {
+    return {
+      error: "Usuario nao conectado",
+    };
+  }
+
+  console.log("CURRENTUSER" + currentUser);
 
   if (!auth) {
     return {

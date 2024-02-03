@@ -4,12 +4,14 @@ import { createPacientMedic } from "@/actions/create-pacient-medic";
 import { FormInput } from "@/components/form/form-input";
 import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
+import { CurrentUser } from "@/hooks/current-user";
 import { useAction } from "@/hooks/use-action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export const MedicForm = () => {
   const router = useRouter();
+
   const { execute, fieldErrors } = useAction(createPacientMedic, {
     onSuccess: (data) => {
       toast.success(`paciente foi  ${data.name} criado com sucesso`);

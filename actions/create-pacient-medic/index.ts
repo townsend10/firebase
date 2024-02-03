@@ -18,6 +18,14 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
+  const { currentUser } = getAuth(firebaseApp);
+
+  if (!currentUser) {
+    return {
+      error: "Usuario nao conectado",
+    };
+  }
+
   const { email, birthdayDate, cpf, name, phone } = data;
   let pacient = data || undefined;
   try {
