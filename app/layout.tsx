@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { InitalPage } from "@/components/inital-page";
 import { Header } from "@/components/header";
+import { AuthProvider } from "@/components/provider/auth-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,12 +23,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <Toaster />
         <div className="flex">
+          {/* <AuthProvider /> */}
           <Header />
-          {/* <div className="flex items-center justify-center flex-grow">
-            {children}
-          </div> */}
 
-          {children}
+          <div className="">{children} </div>
         </div>
       </body>
     </html>
