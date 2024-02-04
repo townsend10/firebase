@@ -36,7 +36,7 @@ export const MedicForm = () => {
 
   console.log(onSubmit);
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-grow min-h-screen justify-center items-center">
       <form action={onSubmit}>
         <div className="mb-4">
           <FormInput
