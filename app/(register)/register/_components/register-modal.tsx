@@ -62,7 +62,7 @@ export const RegisterModal = () => {
     // googleSign({});
   };
   return (
-    <div className="flex items-center justify-center min-h-screen  bg-gradient-to-t">
+    <div className="flex flex-grow  items-center justify-center min-h-screen  bg-gradient-to-t">
       <form action={onSubmit}>
         <div className="mb-8">
           <FormInput
