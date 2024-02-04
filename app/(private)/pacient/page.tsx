@@ -9,7 +9,7 @@ const PagePacient = () => {
     phone: "",
   };
   return (
-    <div>
+    <div className="flex flex-grow">
       <ListPacient Pacients={Pacients} />
     </div>
   );

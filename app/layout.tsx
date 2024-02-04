@@ -25,8 +25,7 @@ export default function RootLayout({
         <div className="flex">
           {/* <AuthProvider /> */}
           <Header />
-
-          <div className="">{children} </div>
+          {children}
         </div>
       </body>
     </html>

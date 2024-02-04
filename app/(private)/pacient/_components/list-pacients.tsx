@@ -40,7 +40,7 @@ export const ListPacient = ({ Pacients }: ListPacientProps) => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center ml-10 mt-10">
+    <div className="flex flex-col justify-center ml-10 mt-0 min-h-screen">
       <h1 className="text-5xl font-bold mb-5">Pacientes</h1>
       {data?.map((pacient) => (
         <div className="mb-4">

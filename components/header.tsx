@@ -43,7 +43,7 @@ export const Header = () => {
     },
   ];
   return (
-    <div className="flex flex-col w-10/12 scroll-mb-0  bg-gray-900 text-white">
+    <div className="flex flex-col   bg-gray-900 text-white">
       <div className="flex items-center justify-center">
         <h1 className="text-2xl font-bold my-4 text-yellow-300">Firebase</h1>
         <LogOutButton />
