@@ -3,7 +3,7 @@ import { LoginModal } from "./_components/login_modal";
 
 const LoginPage = () => {
   return (
-    <div className="flex items-center justify-center flex-grow">
+    <div className="flex w-full">
       <LoginModal />
     </div>
   );

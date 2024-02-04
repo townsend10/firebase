@@ -30,7 +30,7 @@ export const LoginModal = () => {
   const loginWithGoogle = async () => {};
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-grow items-center justify-center min-h-screen">
       <form action={onSubmit}>
         <div className="mb-4">
           <FormInput
