@@ -15,7 +15,7 @@ import {
 import { GetPacients } from "./schema";
 import { ReturnType, InputType } from "./types";
 
-const handler = async (): Promise<ReturnType> => {
+const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const { currentUser } = getAuth(firebaseApp);
@@ -33,11 +33,25 @@ const handler = async (): Promise<ReturnType> => {
       error: "Erro ao inicializar o firebase",
     };
   }
-
+  let pacientId;
   try {
     // const pacient: Pacient[] = [data];
     const querySnapshot = await getDocs(collection(db, "pacient"));
-    const pacients = querySnapshot.docs.map((doc) => doc.data());
+    // const pacients = querySnapshot.docs.map((doc) => doc.data());
+    const pacients = querySnapshot.docs.map((doc) => {
+      const { name, cpf, email, phone, birthdayDate, id } = doc.data();
+
+      return {
+        id: doc.id,
+        name,
+        cpf,
+        email,
+        phone,
+        birthdayDate,
+
+        // data: doc.data(),
+      };
+    });
 
     return { data: pacients };
   } catch (error) {

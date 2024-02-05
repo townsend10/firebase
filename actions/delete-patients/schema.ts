@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const GetPacients = z.object({
+export const DeletePatients = z.object({
   name: z.string(),
   email: z.string(),
 
@@ -8,5 +8,5 @@ export const GetPacients = z.object({
 
   cpf: z.string(),
   phone: z.string(),
-  id: z.string().optional(),
+  id: z.string(),
 });

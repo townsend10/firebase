@@ -47,7 +47,7 @@ export const MedicForm = () => {
             errors={fieldErrors}
           />
           <FormInput
-            type="name"
+            type="date"
             id="birthdayDate"
             className="mb-10"
             placeholder="Digite aniversario"

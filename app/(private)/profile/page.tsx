@@ -2,7 +2,7 @@ import { ProfilePerfil } from "./_components/profile-perfil";
 
 const ProfilePage = () => {
   return (
-    <div>
+    <div className="flex flex-grow">
       <ProfilePerfil />
     </div>
   );
