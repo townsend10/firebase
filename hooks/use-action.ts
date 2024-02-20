@@ -12,7 +12,11 @@ interface UseActionOptions<TOutput> {
   onComplete?: () => void;
 }
 
-export const useAction = <TInput, TOutput>(
+interface SearchQuery {
+  query: string;
+}
+
+export const useAction = <TInput extends {} | SearchQuery, TOutput>(
   action: Action<TInput, TOutput>,
   options: UseActionOptions<TOutput> = {}
 ) => {
@@ -21,6 +25,7 @@ export const useAction = <TInput, TOutput>(
   >(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [data, setData] = useState<TOutput | undefined>(undefined);
+  const [query, setQuery] = useState<TOutput | undefined>(undefined);
   const [getDocs, setGetDocs] = useState<TOutput | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -42,6 +47,11 @@ export const useAction = <TInput, TOutput>(
           options.onError?.(result.error);
         }
 
+        // if (result.query) {
+        //   setError(result.query);
+        //   options.onError?.(result.query);
+        // }
+
         if (result.data) {
           setData(result.data);
           options.onSuccess?.(result.data);
@@ -60,5 +70,6 @@ export const useAction = <TInput, TOutput>(
     error,
     data,
     isLoading,
+    query,
   };
 };

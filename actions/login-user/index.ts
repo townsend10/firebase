@@ -2,7 +2,13 @@
 import { createSafeAction } from "@/lib/create-safe-action";
 import { LoginUser } from "./schema";
 import { InputType, ReturnType } from "./types";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  browserSessionPersistence,
+  getAuth,
+  onAuthStateChanged,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
@@ -23,6 +29,24 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       email,
       password
     );
+    await setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        console.log("Persistencia ativa" + browserSessionPersistence);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // O usuário está autenticado
+        console.log("Usuário logado:", user);
+      } else {
+        // O usuário não está autenticado
+        console.log("Nenhum usuário logado");
+      }
+    });
+
     user = createNewUser.user;
     return { data: user };
   } catch (error) {

@@ -1,6 +1,5 @@
 // "use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { Pacient } from "@/types";
 
 import { createSafeAction } from "@/lib/create-safe-action";
 import { getAuth } from "firebase/auth";

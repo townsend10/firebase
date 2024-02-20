@@ -11,6 +11,8 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  query,
+  where,
 } from "firebase/firestore";
 import { GetPacients } from "./schema";
 import { ReturnType, InputType } from "./types";
@@ -26,7 +28,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  console.log("CURRENTUSER" + currentUser);
+  console.log("CURRENTUSER" + currentUser.email);
 
   if (!auth) {
     return {
@@ -35,9 +37,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
   let pacientId;
   try {
-    // const pacient: Pacient[] = [data];
     const querySnapshot = await getDocs(collection(db, "pacient"));
-    // const pacients = querySnapshot.docs.map((doc) => doc.data());
     const pacients = querySnapshot.docs.map((doc) => {
       const { name, cpf, email, phone, birthdayDate, id } = doc.data();
 
@@ -52,8 +52,27 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         // data: doc.data(),
       };
     });
+    const { name, email } = data;
+    const q = query(
+      collection(db, "pacient"),
+      where("name", "==", name),
+      where("email", "==", email)
+    );
+    const querySearch = await getDocs(q);
 
-    return { data: pacients };
+    const searchResults = querySearch.docs.map((doc) => {
+      const { id, email, birthdayDate, cpf, name, phone } = doc.data();
+      return {
+        id,
+        email,
+        birthdayDate,
+        cpf,
+        name,
+        phone,
+      };
+    });
+
+    return { data: pacients, query: searchResults };
   } catch (error) {
     console.error("Erro durante a recuperação de pacientes:", error);
 

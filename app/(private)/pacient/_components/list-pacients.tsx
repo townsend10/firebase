@@ -13,6 +13,7 @@ import { Mail, PhoneIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { SearchPacient } from "./search-pacient";
 
 interface ListPacientProps {
   pacient: Pacient;
@@ -69,6 +70,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
   return (
     <div className="flex flex-col justify-center ml-10 mt-0 min-h-screen">
       <h1 className="text-5xl font-bold mb-5">Pacientes</h1>
+      <SearchPacient />
       {data?.map((pacient) => (
         <div className="mb-4">
           <h2 className="text-xl font-bold">Nome : {pacient.name} </h2>
@@ -83,14 +85,21 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
             Nascimento: {pacient.birthdayDate}{" "}
             <PhoneIcon size={20} className="inline ml-2" />{" "}
           </p>
-          <p className="text-gray-600">
-            Id: {pacient.id} <PhoneIcon size={20} className="inline ml-2" />{" "}
-          </p>
           <Button
+            className="mt-2"
+            variant="destructive"
             onClick={() => {
               deleteOnClick(pacient.id);
             }}>
             Deletar
+          </Button>
+          <Button
+            className="ml-5"
+            variant="default"
+            onClick={() => {
+              router.push(`/pacient/${pacient.id}`);
+            }}>
+            Sobre
           </Button>
         </div>
       ))}

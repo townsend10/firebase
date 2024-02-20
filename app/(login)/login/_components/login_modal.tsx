@@ -12,7 +12,7 @@ export const LoginModal = () => {
 
   const { execute, fieldErrors } = useAction(loginUser, {
     onSuccess: (data) => {
-      toast.success(`Bem vindo ${data.displayName}`);
+      toast.success(`Bem vindo ${data.email}`);
       router.push("/profile");
     },
     onError: (error) => {

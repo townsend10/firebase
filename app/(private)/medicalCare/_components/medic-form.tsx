@@ -1,10 +1,10 @@
 "use client";
 
 import { createPacientMedic } from "@/actions/create-pacient-medic";
+import { CpfInput } from "@/components/cpf-input";
 import { FormInput } from "@/components/form/form-input";
 import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
-import { CurrentUser } from "@/hooks/current-user";
 import { useAction } from "@/hooks/use-action";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -60,7 +60,14 @@ export const MedicForm = () => {
             placeholder="e-mail"
             errors={fieldErrors}
           />
-          <FormInput type="name" id="cpf" className="mb-10" placeholder="CPF" />
+          {/* <FormInput type="name" id="cpf" className="mb-10" placeholder="CPF" /> */}
+          <CpfInput
+            type="name"
+            id="cpf"
+            className="mb-10"
+            placeholder="CPF"
+            errors={fieldErrors}
+          />
           <PhoneInput
             type="tel"
             id="phone"

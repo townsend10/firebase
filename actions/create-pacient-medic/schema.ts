@@ -14,18 +14,20 @@ export const CreatPacientMedic = z.object({
       required_error: "Email obrigatorio",
       invalid_type_error: "Email obrigatorio",
     })
-    .min(2, {
-      message: "ASDASD",
-    }),
+    .email({ message: "Digite um email valido" }),
   birthdayDate: z.string({
     required_error: "Data de aniversario obrigatorio",
     invalid_type_error: "Data de aniversario obrigatorio",
   }),
 
-  cpf: z.string({
-    required_error: "CPF obrigatorio",
-    invalid_type_error: "CPF obrigatorio",
-  }),
+  cpf: z
+    .string({
+      required_error: "CPF obrigatorio",
+      invalid_type_error: "CPF obrigatorio",
+    })
+    .max(14, {
+      message: "CPF GRANDE",
+    }),
 
   phone: z.string({
     required_error: "Telefone obrigatoria",

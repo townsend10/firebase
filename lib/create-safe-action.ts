@@ -1,3 +1,4 @@
+import { Pacient } from "@/types";
 import { z } from "zod";
 
 export type FieldErrors<T> = {
@@ -8,6 +9,7 @@ export type ActionState<TInput, TOutput> = {
   fieldErrors?: FieldErrors<TInput>;
   error?: string | null;
   data?: TOutput;
+  query?: TOutput;
 };
 
 export const createSafeAction = <TInput, TOutput>(
