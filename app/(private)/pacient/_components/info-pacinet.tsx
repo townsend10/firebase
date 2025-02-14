@@ -1,9 +1,12 @@
 "use client";
 
 import { getPacient } from "@/actions/get-pacient.tsx";
+import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
+import { useAuth } from "@/hooks/use-current-user";
 import { Pacient } from "@/types";
-import { useParams } from "next/navigation";
+import { Loader, X } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,6 +15,8 @@ interface InfoPacientProps {
 }
 
 export const InfoPacient = ({ pacient }: InfoPacientProps) => {
+  const router = useRouter();
+  const { user } = useAuth();
   const { data, execute } = useAction(getPacient, {
     onSuccess: (data) => {
       toast.success(`${data.name} bem vindo   `);
@@ -54,8 +59,15 @@ export const InfoPacient = ({ pacient }: InfoPacientProps) => {
   }, [data?.birthdayDate]);
   const [age, setAge] = useState<number | null>(null);
 
-  console.log("idade birth :" + pacient.birthdayDate);
-  console.log("idade data :" + pacient.birthdayDate);
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen w-full">
+        <Loader className="w-5 h-5 animate-spin" />
+        <p className="mt-2 text-muted-foreground">Usuário desconectado!</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col mt-20 ml-10">
       <h1 className="font-semibold text-3xl">Bem vindo {data?.name} </h1>
@@ -63,6 +75,10 @@ export const InfoPacient = ({ pacient }: InfoPacientProps) => {
       <p className="text-zinc-600 mt-5 font-bold">Tel : {data?.phone} </p>
       <p className="text-zinc-600 mt-5 font-bold">email : {data?.email} </p>
       <p className="text-zinc-600 mt-5  font-bold ">Idade: {age} anos </p>
+
+      <Button onClick={() => router.push(`/pacient/${params.pacientId}/edit`)}>
+        Editar
+      </Button>
     </div>
   );
 };

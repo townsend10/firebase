@@ -2,24 +2,22 @@
 
 import { deletePatients } from "@/actions/delete-patients";
 import { getPacients } from "@/actions/get-pacients";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { FormInput } from "@/components/form/form-input";
-import { PhoneInput } from "@/components/phone-input";
+import { getSchedules } from "@/actions/get-schedules";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useAction } from "@/hooks/use-action";
 import { Pacient } from "@/types";
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { Mail, PhoneIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
-import { SearchPacient } from "./search-pacient";
 
 interface ListPacientProps {
   pacient: Pacient;
 }
 export const ListPacient = ({ pacient }: ListPacientProps) => {
   const router = useRouter();
+
   const { data, execute: allPatients } = useAction(getPacients, {
     onSuccess: (data) => {
       toast.success(`sucesso ao recuperar o paciente `);
@@ -42,8 +40,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
   });
 
   useEffect(() => {
-    // getPacientsx();
-
+    // Retorna uma função de limpeza para cancelar a inscrição quando o componente for desmontado
     allPatients({
       birthdayDate: pacient.birthdayDate,
       cpf: pacient.cpf,
@@ -63,57 +60,116 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
       phone: pacient.phone,
       id,
     });
-
-    console.log("ID PORRA:", id);
-    // router.push(`/pacient/${id}`);
   };
-  return (
-    <div className="flex flex-col justify-center ml-10 mt-0 min-h-screen">
-      <h1 className="text-5xl font-bold mb-5">Pacientes</h1>
-      <SearchPacient />
-      {data?.map((pacient) => (
-        <div className="mb-4">
-          <h2 className="text-xl font-bold">Nome : {pacient.name} </h2>
-          <p className="text-gray-600">
-            e-mail : {pacient.email} <Mail className="inline ml-2" size={20} />{" "}
-          </p>
-          <p className="text-gray-600">
-            Telefone: {pacient.phone}{" "}
-            <PhoneIcon size={20} className="inline ml-2" />{" "}
-          </p>
-          <p className="text-gray-600">
-            Nascimento: {pacient.birthdayDate}{" "}
-            <PhoneIcon size={20} className="inline ml-2" />{" "}
-          </p>
-          <Button
-            className="mt-2"
-            variant="destructive"
-            onClick={() => {
-              deleteOnClick(pacient.id);
-            }}>
-            Deletar
-          </Button>
-          <Button
-            className="ml-5"
-            variant="default"
-            onClick={() => {
-              router.push(`/pacient/${pacient.id}`);
-            }}>
-            Sobre
-          </Button>
-        </div>
-      ))}
-    </div>
-    // PACIENTESSSSSSSSSSS
 
-    // <div>
-    //   <h2>Lista de Pacientes</h2>
-    //   <ul>
-    //     {pacientes.map((paciente, index) => (
-    //       <li key={index}>{paciente.name}</li>
-    //       // Substitua 'nome' pelo campo que você deseja exibir
-    //     ))}
-    //   </ul>
-    // </div>
+  const {
+    data: schedules,
+    execute: getSchedulings,
+    fieldErrors: getErrorsSchedulings,
+  } = useAction(getSchedules, {
+    onSuccess: (data) => {
+      toast.success(`paciente foi  recupearado com sucesso h `);
+      // router.push(`/pacient/${getPacientId}/schedule/${data?.id}`);
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+
+  useEffect(() => {
+    getSchedulings({
+      date: "",
+      hour: "",
+      name: "",
+      status: "cancelled",
+      pacientId: "",
+    });
+  }, []);
+  return (
+    <div className="flex flex-col w-full ml-5">
+      <h1 className="text-5xl font-bold mb-5 mt-5 ">Pacientes</h1>
+      {/* <SearchPacient /> */}
+      {/* {schedules?.map((schedule: any) => (
+        <div key={schedule.id}>{schedule.pacientId}</div>
+      ))} */}
+      {data?.map((pacient) => {
+        const dateToBr = pacient.birthdayDate;
+        const formtData = new Date(dateToBr);
+
+        const hasSchedule = schedules?.some(
+          (schedule) => schedule.pacientId === pacient.id
+        );
+        const patientSchedules = schedules?.filter(
+          (schedule) => schedule.pacientId === pacient.id
+        );
+        const scheduleIds = patientSchedules?.map((schedule) => schedule.id);
+
+        return (
+          <div className="ml-5" key={pacient.id}>
+            <h2 className="font-bold uppercase">Nome : {pacient.name} </h2>
+            <p className="text-muted-foreground ">
+              e-mail : {pacient.email}{" "}
+              <Mail className="inline ml-2" size={20} />
+            </p>
+            <p className="text-muted-foreground">
+              Telefone: {pacient.phone}{" "}
+              <PhoneIcon size={20} className="inline ml-2" />
+            </p>
+
+            <p className="text-muted-foreground">
+              Nascimento: {formtData.toLocaleDateString("pt-BR")}
+              <PhoneIcon size={20} className="inline ml-2" />
+            </p>
+
+            {/* Renderiza o botão "Ver Agendamentos" se houver um agendamento correspondente */}
+            {hasSchedule && (
+              <Button
+                className="mr-2"
+                variant="default"
+                onClick={() => {
+                  // Ação do botão quando há um agendamento
+                  router.push(`/pacient/${pacient.id}/schedule/${scheduleIds}`);
+                }}
+              >
+                Agendamentos
+              </Button>
+            )}
+
+            {/* Renderiza o botão "Agendar" apenas se não houver agendamentos */}
+            {!hasSchedule && (
+              <Button
+                className="mr-2"
+                variant="default"
+                onClick={() => {
+                  router.push(`/pacient/${pacient.id}/schedule`);
+                }}
+              >
+                Agendar
+              </Button>
+            )}
+
+            <Button
+              className="mt-2"
+              variant="destructive"
+              onClick={() => {
+                deleteOnClick(pacient.id);
+              }}
+            >
+              Deletar
+            </Button>
+            <Button
+              className="ml-2"
+              variant="secondary"
+              onClick={() => {
+                router.push(`/pacient/${pacient.id}`);
+              }}
+            >
+              Sobre
+            </Button>
+            <Separator className="mb-5 mt-5" />
+          </div>
+        );
+      })}
+    </div>
   );
 };

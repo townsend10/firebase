@@ -21,12 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Toaster />
-        <div className="flex">
-          {/* <AuthProvider /> */}
-          <Header />
-          {children}
-        </div>
+        <AuthProvider>
+          <Toaster />
+          <div className="flex">
+            <Header />
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

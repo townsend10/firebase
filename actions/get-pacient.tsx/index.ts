@@ -20,11 +20,11 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const { currentUser } = getAuth(firebaseApp);
-  // if (!currentUser) {
-  //   return {
-  //     error: "ERRO AO CARREGAR ESSA PAGIN",
-  //   };
-  // }
+  if (!currentUser) {
+    return {
+      error: "ERRO AO CARREGAR ESSA PAGIN",
+    };
+  }
 
   console.log("CURRENTUSER: " + currentUser?.email);
 

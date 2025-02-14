@@ -4,4 +4,4 @@ import { ActionState } from "@/lib/create-safe-action";
 import { User } from "firebase/auth";
 
 export type InputType = z.infer<typeof LoginUser>;
-export type ReturnType = ActionState<InputType, User>;
+export type ReturnType = ActionState<InputType, any>;

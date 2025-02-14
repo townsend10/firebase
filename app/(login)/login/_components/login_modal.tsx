@@ -1,14 +1,40 @@
 "use client";
 
+import { googleSign } from "@/actions/google-sign";
 import { loginUser } from "@/actions/login-user";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
+import { useAuth } from "@/hooks/use-current-user";
+import {
+  GoogleAuthProvider,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  getAuth,
+  setPersistence,
+  signInWithPopup,
+} from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export const LoginModal = () => {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
+
+  if (isLoggedIn) {
+    router.push("/");
+  }
+
+  const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
+    useAction(googleSign, {
+      onSuccess: (data) => {
+        toast.success(`Bem vindo ${data.displayName}`);
+        router.push("/profile");
+      },
+      onError: (error) => {
+        toast.error(error);
+      },
+    });
 
   const { execute, fieldErrors } = useAction(loginUser, {
     onSuccess: (data) => {
@@ -27,10 +53,11 @@ export const LoginModal = () => {
     execute({ email, password });
   };
 
-  const loginWithGoogle = async () => {};
-
+  const GoogleLogin = async () => {
+    loginWithGoogle({});
+  };
   return (
-    <div className="flex flex-grow items-center justify-center min-h-screen">
+    <div className="flex flex-grow items-center justify-center ">
       <form action={onSubmit}>
         <div className="mb-4">
           <FormInput
@@ -52,6 +79,9 @@ export const LoginModal = () => {
         <div className="text-center">
           <Button size="lg" variant={"destructive"}>
             Login
+          </Button>
+          <Button onClick={GoogleLogin} className="ml-5" size="lg">
+            Google
           </Button>
         </div>
       </form>

@@ -3,6 +3,7 @@ import { createSafeAction } from "@/lib/create-safe-action";
 import { LoginUser } from "./schema";
 import { InputType, ReturnType } from "./types";
 import {
+  browserLocalPersistence,
   browserSessionPersistence,
   getAuth,
   onAuthStateChanged,
@@ -29,24 +30,27 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       email,
       password
     );
-    await setPersistence(auth, browserSessionPersistence)
+    await setPersistence(auth, browserLocalPersistence)
       .then(() => {
-        console.log("Persistencia ativa" + browserSessionPersistence);
+        return createNewUser;
       })
       .catch((error) => {
         console.log(error);
       });
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // O usuário está autenticado
-        console.log("Usuário logado:", user);
-      } else {
-        // O usuário não está autenticado
-        console.log("Nenhum usuário logado");
-      }
+    await new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        unsubscribe(); // Pare de observar depois de detectar a mudança de estado
+        resolve(user); // Resolva a promessa com o usuário atual
+      });
     });
-
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      console.log("Usuário logado:", currentUser);
+      user = currentUser;
+    } else {
+      console.log("Nenhum usuário logado");
+      // Faça o que você precisa fazer quando não houver usuário autenticado
+    }
     user = createNewUser.user;
     return { data: user };
   } catch (error) {

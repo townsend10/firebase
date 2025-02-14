@@ -26,8 +26,10 @@ const firebaseApp = initializeApp(firebaseConfig);
 //   const analytics = getAnalytics(firebaseApp);
 // }
 
-const auth = getAuth(firebaseApp);
-
-// setPersistence(auth, browserLocalPersistence).then();
+const auth = getAuth(firebaseApp)
+  .setPersistence(browserSessionPersistence)
+  .then(() => {
+    console.log("Session perssintece set");
+  });
 
 export { firebaseApp, auth };

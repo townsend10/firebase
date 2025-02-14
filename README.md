@@ -34,3 +34,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+babel
+// module.exports = {
+// presets: [
+// "next/babel", // Preset do Next.js para configuração padrão
+// "@babel/preset-env", // Para compatibilidade com versões mais antigas do JavaScript, se necessário
+// "@babel/preset-typescript", // Para suportar TypeScript
+// // {
+// // "preset-env": {},
+// // "transform-runtime": {},
+// // "styled-jsx": {},
+// // "class-properties": {}
+// // }
+// ],
+// // plugins: [
+// // "@babel/plugin-transform-runtime", // Para evitar duplicação de código e melhorar o desempenho
+// // // Outros plugins personalizados podem ser adicionados aqui
+// // ],
+// };

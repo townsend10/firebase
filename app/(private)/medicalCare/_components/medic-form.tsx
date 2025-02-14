@@ -12,6 +12,9 @@ import { toast } from "sonner";
 export const MedicForm = () => {
   const router = useRouter();
 
+  // let yourDate = new Date();
+  // const data = yourDate.toISOString().split("T")[0];
+
   const { execute, fieldErrors } = useAction(createPacientMedic, {
     onSuccess: (data) => {
       toast.success(`paciente foi  ${data.name} criado com sucesso`);
@@ -19,6 +22,7 @@ export const MedicForm = () => {
     },
     onError: (error) => {
       toast.error(error);
+      router.push("/login");
     },
   });
 
@@ -36,7 +40,7 @@ export const MedicForm = () => {
 
   console.log(onSubmit);
   return (
-    <div className="flex flex-grow min-h-screen justify-center items-center">
+    <div className="flex flex-grow  justify-center items-center">
       <form action={onSubmit}>
         <div className="mb-4">
           <FormInput
