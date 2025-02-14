@@ -1,16 +1,13 @@
-import { User } from "lucide-react";
+import Image from "next/image";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import Image from "next/image";
 
 interface UserProfileProps {
   picture?: string | null;
@@ -27,7 +24,7 @@ export const UserProfile = ({
       <DropdownMenuTrigger className="flex items-center cursor-pointer ">
         <div className="rounded-full overflow-hidden shadow-md">
           {picture ? (
-            <img src={picture} alt="img" className="w-10 h-10 object-cover" />
+            <Image src={picture} alt="img" className="w-10 h-10 object-cover" />
           ) : (
             <div className="flex flex-col items-center justify-center">
               <p className=" text-2xl ">{firstName?.charAt(0)}</p>

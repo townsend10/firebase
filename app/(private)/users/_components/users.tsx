@@ -28,20 +28,23 @@ export const Users = () => {
     return;
   }
 
-  useEffect(() => {
-    setGoogleName("dia");
-    getUsers({
-      id: "",
-      name: "",
-      phone: "",
-    });
-  }, []);
+  // useEffect(() => {
+  //   setGoogleName("dia");
+  //   getUsers({
+  //     id: "",
+  //     name: "",
+  //     phone: "",
+  //   });
+  // }, []);
   return (
     <div className="flex flex-col ml-[50px] mt-10">
       <h1 className="font-bold text-5xl">Usuarios</h1>
       <div className="">
         {data?.map((user) => (
-          <div className="flex flex-col  mt-[30px]  text-2xl text-muted-foreground text-center uppercase">
+          <div
+            key={user.id}
+            className="flex flex-col  mt-[30px]  text-2xl text-muted-foreground text-center uppercase"
+          >
             <p className="mt-2">
               nome: {user.name} {googleName}{" "}
             </p>

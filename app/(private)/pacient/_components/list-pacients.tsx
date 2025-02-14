@@ -49,7 +49,15 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
       phone: pacient.phone,
       id: pacient.id,
     });
-  }, []);
+  }, [
+    allPatients,
+    pacient.birthdayDate,
+    pacient.name,
+    pacient.cpf,
+    pacient.email,
+    pacient.phone,
+    pacient.id,
+  ]);
 
   const deleteOnClick = (id: string) => {
     deleteAll({
@@ -84,7 +92,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
       status: "cancelled",
       pacientId: "",
     });
-  }, []);
+  }, [getSchedulings]);
   return (
     <div className="flex flex-col w-full ml-5">
       <h1 className="text-5xl font-bold mb-5 mt-5 ">Pacientes</h1>

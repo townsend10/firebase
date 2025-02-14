@@ -56,7 +56,7 @@ export const UserInfo = () => {
       name: "",
       phone: "",
     });
-  }, []);
+  }, [getUser, paramas.userId]);
 
   const onDeleteUser = () => {
     deleteUser({

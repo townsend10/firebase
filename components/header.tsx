@@ -67,7 +67,7 @@ export const Header = () => {
       name: "",
       phone: "",
     });
-  }, [userId]);
+  }, [userId, auth.currentUser?.uid, getUser]);
 
   const router = isLoggedIn
     ? [

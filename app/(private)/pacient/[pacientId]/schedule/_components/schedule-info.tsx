@@ -46,7 +46,7 @@ export const ScheduleInfo = () => {
       hour: "",
       status: "confirm",
     });
-  }, []);
+  }, [getScheduling, id]);
 
   const onDelete = () => {
     deleteScheduleExecute({ id });

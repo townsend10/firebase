@@ -38,7 +38,7 @@ export const ScheduleEdit = () => {
 
   useEffect(() => {
     getScheduling({ date: "", hour: "", id: scheduleId, status: "none" });
-  }, []);
+  }, [getScheduling,scheduleId]);
 
   const onSubmit = (formData: FormData) => {
     const date = formData.get("date") as any;

@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   // if (!currentUser) {
   //   throw new Error("Usuário não logado");

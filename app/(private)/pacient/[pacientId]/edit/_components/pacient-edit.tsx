@@ -82,7 +82,16 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
     };
 
     calculateAge();
-  }, [data?.birthdayDate]);
+  }, [
+    data?.birthdayDate,
+    LoadPacient,
+    pacient.birthdayDate,
+    pacient.cpf,
+    pacient.name,
+    pacient.phone,
+    pacient.email,
+    params.pacientId,
+  ]);
   const [age, setAge] = useState<number | null>(null);
 
   if (!isLoggedIn) {

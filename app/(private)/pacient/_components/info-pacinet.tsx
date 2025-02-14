@@ -56,7 +56,16 @@ export const InfoPacient = ({ pacient }: InfoPacientProps) => {
     };
 
     calculateAge();
-  }, [data?.birthdayDate]);
+  }, [
+    data?.birthdayDate,
+    execute,
+    pacient.birthdayDate,
+    pacient.cpf,
+    pacient.email,
+    pacient.name,
+    pacient.phone,
+    params.pacientId,
+  ]);
   const [age, setAge] = useState<number | null>(null);
 
   if (!user) {
