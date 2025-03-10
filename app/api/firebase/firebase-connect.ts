@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import "firebase/auth";
 import {
+  AuthError,
   browserLocalPersistence,
   browserSessionPersistence,
   getAuth,
@@ -22,14 +23,21 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
-// // if (typeof window !== "undefined") {
-//   const analytics = getAnalytics(firebaseApp);
-// }
 
-const auth = getAuth(firebaseApp)
-  .setPersistence(browserSessionPersistence)
-  .then(() => {
-    console.log("Session perssintece set");
-  });
+const auth = getAuth(firebaseApp);
+
+export const initializeAuth = async () => {
+  try {
+    await setPersistence(auth, browserSessionPersistence);
+    console.log("Session persistence set successfully");
+    return auth;
+  } catch (error: any) {
+    console.error("Error setting persistence:", error);
+    if (error as AuthError) {
+      console.error("Firebase Authentication Error:", error.code);
+    }
+    throw error; // Re-throw to allow higher-level error handling
+  }
+};
 
 export { firebaseApp, auth };
