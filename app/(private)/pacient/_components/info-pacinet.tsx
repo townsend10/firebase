@@ -78,15 +78,26 @@ export const InfoPacient = ({ pacient }: InfoPacientProps) => {
   }
 
   return (
-    <div className="flex flex-col mt-20 ml-10">
-      <h1 className="font-semibold text-3xl">Bem vindo {data?.name} </h1>
+    <div className="flex flex-col mt-20 ml-10 bg-white p-6 ">
+      <h1 className="font-semibold text-3xl text-gray-800">
+        Bem-vindo, {data?.name}!
+      </h1>
 
-      <p className="text-zinc-600 mt-5 font-bold">Tel : {data?.phone} </p>
-      <p className="text-zinc-600 mt-5 font-bold">email : {data?.email} </p>
-      <p className="text-zinc-600 mt-5  font-bold ">Idade: {age} anos </p>
+      <p className="text-gray-600 mt-5 font-medium border-b pb-2">
+        📞 Tel: {data?.phone}
+      </p>
+      <p className="text-gray-600 mt-5 font-medium border-b pb-2">
+        📧 Email: {data?.email}
+      </p>
+      <p className="text-gray-600 mt-5 font-medium border-b pb-2">
+        🎂 Idade: {age} anos
+      </p>
 
-      <Button onClick={() => router.push(`/pacient/${params.pacientId}/edit`)}>
-        Editar
+      <Button
+        onClick={() => router.push(`/pacient/${params.pacientId}/edit`)}
+        className="mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
+      >
+        ✏️ Editar
       </Button>
     </div>
   );

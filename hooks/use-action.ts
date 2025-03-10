@@ -62,7 +62,7 @@ export const useAction = <TInput extends {} | SearchQuery, TOutput>(
         options.onComplete?.();
       }
     },
-    [action, options]
+    [options.onComplete, action,]
   );
 
   return {

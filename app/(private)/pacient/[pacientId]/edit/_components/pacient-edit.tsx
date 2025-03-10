@@ -109,37 +109,44 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
     //     Editar
     //   </Button>
     // </div>
-    <div className="flex flex-grow min-h-screen justify-center items-center">
-      <form action={onSubmit}>
-        <h1 className="text-2xl font-bold mb-10 ">Editar : {data?.name} </h1>
+    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
+      <form
+        action={onSubmit}
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+      >
+        <h1 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+          Editar : {data?.name}{" "}
+        </h1>
         <FormInput
           id="name"
           placeholder="nome"
-          className="mb-10"
+          className="w-full mb-2"
           defaultValue={data?.name}
         />
         <FormInput
           id="phone"
           placeholder="Telefone"
-          className="mb-10"
+          className="w-full mb-2"
           defaultValue={data?.phone}
         />
         <FormInput
           id="email"
-          className="mb-10"
+          className="w-full mb-2"
           placeholder="email"
           defaultValue={data?.email}
         />
         <FormInput
           id="birthdayDate"
-          className="mb-10"
+          className="w-full mb-2"
           type="date"
           placeholder="idade"
           defaultValue={data?.birthdayDate}
         />
-        <Button className="text-center justify-center items-center">
-          Salvar
-        </Button>
+        <div className="text-center mb-6">
+          <Button className="w-full" variant="destructive">
+            Salvar
+          </Button>
+        </div>
       </form>
     </div>
   );

@@ -78,60 +78,130 @@ export const RegisterModal = () => {
     // googleSign({});
   };
   return (
-    <div className="flex flex-grow  items-center justify-center min-h-screen  bg-gradient-to-t">
-      <form ref={formRef} action={onSubmit}>
-        <div className="mb-8">
+    // <div className="flex flex-grow  items-center justify-center min-h-screen  bg-gradient-to-t">
+    //   <form ref={formRef} action={onSubmit}>
+    //     <div className="mb-8">
+    //       <FormInput
+    //         id="email"
+    //         type="email"
+    //         className="mb-4"
+    //         placeholder="Digite email"
+    //         errors={EmailErrors}
+    //       />
+    //       <FormInput
+    //         type="password"
+    //         id="password"
+    //         className="mb-4"
+    //         placeholder="Digite sua senha"
+    //         errors={EmailErrors}
+    //       />
+    //       <FormInput
+    //         id="name"
+    //         className="mb-4"
+    //         placeholder="Nome"
+    //         errors={EmailErrors}
+    //       />
+    //       <PhoneInput
+    //         id="phone"
+    //         type="tel"
+    //         className="mb-4"
+    //         placeholder="Telefone"
+    //         errors={EmailErrors}
+    //       />
+    //       <FormInput
+    //         id="imageFile"
+    //         type="file"
+    //         className="mb-4"
+    //         placeholder="image"
+    //         errors={EmailErrors}
+    //         onChange={handleFileChange}
+    //       />
+    //       <div className="flex items-center justify-center">
+    //         <Image src={image} alt="perfil" width={200} height={200} />
+    //       </div>
+    //     </div>
+
+    //     <div className="text-center flex ">
+    //       <Button size="lg" variant={"destructive"}>
+    //         Cadastrar
+    //       </Button>
+
+    //       <div className="ml-3">
+    //         <Button onClick={GoogleLogin} size="lg">
+    //           Google
+    //           <SquareUser className="ml-2" />
+    //         </Button>
+    //       </div>
+    //     </div>
+    //   </form>
+    // </div>
+    <div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4">
+      <form
+        ref={formRef}
+        action={onSubmit}
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+      >
+        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+          Cadastro
+        </h2>
+        <div className="space-y-4">
           <FormInput
             id="email"
             type="email"
-            className="mb-4"
+            className="w-full"
             placeholder="Digite email"
             errors={EmailErrors}
           />
           <FormInput
             type="password"
             id="password"
-            className="mb-4"
+            className="w-full"
             placeholder="Digite sua senha"
             errors={EmailErrors}
           />
           <FormInput
             id="name"
-            className="mb-4"
+            className="w-full"
             placeholder="Nome"
             errors={EmailErrors}
           />
           <PhoneInput
             id="phone"
             type="tel"
-            className="mb-4"
+            className="w-full"
             placeholder="Telefone"
             errors={EmailErrors}
           />
           <FormInput
             id="imageFile"
             type="file"
-            className="mb-4"
-            placeholder="image"
+            className="w-full"
+            placeholder="Imagem"
             errors={EmailErrors}
             onChange={handleFileChange}
           />
           <div className="flex items-center justify-center">
-            <Image src={image} alt="perfil" width={200} height={200} />
+            <Image
+              src={image}
+              alt="Perfil"
+              width={200}
+              height={200}
+              className="rounded-full"
+            />
           </div>
         </div>
-
-        <div className="text-center flex ">
-          <Button size="lg" variant={"destructive"}>
+        <div className="text-center flex gap-4 mt-6">
+          <Button size="lg" variant="destructive" className="w-full">
             Cadastrar
           </Button>
-
-          <div className="ml-3">
-            <Button onClick={GoogleLogin} size="lg">
-              Google
-              <SquareUser className="ml-2" />
-            </Button>
-          </div>
+          <Button
+            onClick={GoogleLogin}
+            size="lg"
+            className="w-full flex items-center justify-center"
+          >
+            Google
+            <SquareUser className="ml-2" />
+          </Button>
         </div>
       </form>
     </div>

@@ -20,7 +20,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
 
   const { data, execute: allPatients } = useAction(getPacients, {
     onSuccess: (data) => {
-      toast.success(`sucesso ao recuperar o paciente `);
+      // toast.success(`sucesso ao recuperar o paciente `);
     },
     onError: (error) => {
       toast.error(error);
@@ -76,7 +76,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     fieldErrors: getErrorsSchedulings,
   } = useAction(getSchedules, {
     onSuccess: (data) => {
-      toast.success(`paciente foi  recupearado com sucesso h `);
+      // toast.success(`paciente foi  recupearado com sucesso h `);
       // router.push(`/pacient/${getPacientId}/schedule/${data?.id}`);
     },
     onError: (error) => {

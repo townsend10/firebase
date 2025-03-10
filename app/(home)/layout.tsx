@@ -1,5 +1,9 @@
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex mt-2">{children}</div>;
+  return (
+    <div className="w-full">
+      <div className="">{children}</div>
+    </div>
+  );
 };
 
 export default HomeLayout;

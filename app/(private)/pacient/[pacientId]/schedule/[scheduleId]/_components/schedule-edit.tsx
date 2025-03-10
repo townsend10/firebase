@@ -26,7 +26,7 @@ export const ScheduleEdit = () => {
     fieldErrors: getErrorsSchedulings,
   } = useAction(getSchedule, {
     onSuccess: (data: Schedule) => {
-      toast.success(`paciente foi  recupearado com sucesso h `);
+      // toast.success(`paciente foi  recupearado com sucesso h `);
       // router.push(`/pacient/${getPacientId}/schedule/${data?.id}`);
       setTime(data.hour);
     },
@@ -38,7 +38,7 @@ export const ScheduleEdit = () => {
 
   useEffect(() => {
     getScheduling({ date: "", hour: "", id: scheduleId, status: "none" });
-  }, [getScheduling,scheduleId]);
+  }, [getScheduling, scheduleId]);
 
   const onSubmit = (formData: FormData) => {
     const date = formData.get("date") as any;
@@ -96,13 +96,19 @@ export const ScheduleEdit = () => {
   });
 
   return (
-    <div className="flex  justify-center items-center">
-      <form action={onSubmit}>
-        <div className="mb-4">
+    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
+      <form
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+        action={onSubmit}
+      >
+        <h1 className=" text-center text-2xl font-semibold text-gray-700 ">
+          Remarcar
+        </h1>
+        <div className="space-y-4 mt-2">
           <FormInput
             id="date"
             type="date"
-            className="mb-10"
+            className="w-full"
             min={formatData}
             placeholder="Data do agendamento"
             errors={fieldErrors}
@@ -117,7 +123,7 @@ export const ScheduleEdit = () => {
             max={5}
             onChange={handleChange}
             onBlur={handleBlur}
-            className="mb-10"
+            className="w-full"
             placeholder="hora"
             errors={fieldErrors}
             // defaultValue={data?.hour}
@@ -136,7 +142,7 @@ export const ScheduleEdit = () => {
             name="status"
             // value={value}
             // onChange={onChange}
-            className="border rounded px-2 py-1"
+            className="w-full"
             defaultValue={data?.status}
           >
             <option value="" id="status" disabled defaultValue={data?.status}>
@@ -151,8 +157,8 @@ export const ScheduleEdit = () => {
           </select>
         </div>
 
-        <div className="text-center space-x-2">
-          <Button size="lg" variant={"destructive"}>
+        <div className="text-center mt-6 space-x-2">
+          <Button size="lg" variant={"destructive"} className="w-full">
             Alterar{" "}
           </Button>
         </div>

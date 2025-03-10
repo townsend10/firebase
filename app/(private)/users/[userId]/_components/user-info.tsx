@@ -25,7 +25,7 @@ export const UserInfo = () => {
 
   const { data, execute: getUser } = useAction(getCurrentUser, {
     onSuccess: (data: any) => {
-      toast.success(`ola ${data.name}`);
+      // toast.success(`ola ${data.name}`);
 
       setName(data.name);
       setGoogleName(auth.currentUser?.displayName);
