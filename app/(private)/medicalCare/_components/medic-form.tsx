@@ -40,48 +40,99 @@ export const MedicForm = () => {
 
   console.log(onSubmit);
   return (
-    <div className="flex flex-grow  justify-center items-center">
-      <form action={onSubmit}>
-        <div className="mb-4">
+    // <div className="flex flex-grow  justify-center items-center">
+    //   <form action={onSubmit}>
+    //     <div className="mb-4">
+    //       <FormInput
+    //         id="name"
+    //         type="name"
+    //         className="mb-10"
+    //         placeholder="Nome Completo"
+    //         errors={fieldErrors}
+    //       />
+    //       <FormInput
+    //         type="date"
+    //         id="birthdayDate"
+    //         className="mb-10"
+    //         placeholder="Digite aniversario"
+    //         errors={fieldErrors}
+    //       />
+    //       <FormInput
+    //         type="name"
+    //         id="email"
+    //         className="mb-10"
+    //         placeholder="e-mail"
+    //         errors={fieldErrors}
+    //       />
+    //       {/* <FormInput type="name" id="cpf" className="mb-10" placeholder="CPF" /> */}
+    //       <CpfInput
+    //         type="name"
+    //         id="cpf"
+    //         className="mb-10"
+    //         placeholder="CPF"
+    //         errors={fieldErrors}
+    //       />
+    //       <PhoneInput
+    //         type="tel"
+    //         id="phone"
+    //         className="mb-10"
+    //         placeholder="Telefone"
+    //       />
+    //     </div>
+
+    //     <div className="text-center">
+    //       <Button size="lg" variant={"destructive"}>
+    //         Cadastrar
+    //       </Button>
+    //     </div>
+    //   </form>
+    // </div>
+    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
+      <form
+        action={onSubmit}
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+      >
+        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+          Cadastrar Paciente
+        </h2>
+        <div className="space-y-4">
           <FormInput
             id="name"
-            type="name"
-            className="mb-10"
+            type="text"
+            className="w-full"
             placeholder="Nome Completo"
             errors={fieldErrors}
           />
           <FormInput
             type="date"
             id="birthdayDate"
-            className="mb-10"
-            placeholder="Digite aniversario"
+            className="w-full"
+            placeholder="Data de Nascimento"
             errors={fieldErrors}
           />
           <FormInput
-            type="name"
+            type="email"
             id="email"
-            className="mb-10"
-            placeholder="e-mail"
+            className="w-full"
+            placeholder="E-mail"
             errors={fieldErrors}
           />
-          {/* <FormInput type="name" id="cpf" className="mb-10" placeholder="CPF" /> */}
           <CpfInput
-            type="name"
+            type="text"
             id="cpf"
-            className="mb-10"
+            className="w-full"
             placeholder="CPF"
             errors={fieldErrors}
           />
           <PhoneInput
             type="tel"
             id="phone"
-            className="mb-10"
+            className="w-full"
             placeholder="Telefone"
           />
         </div>
-
-        <div className="text-center">
-          <Button size="lg" variant={"destructive"}>
+        <div className="text-center mt-6">
+          <Button size="lg" variant="destructive" className="w-full">
             Cadastrar
           </Button>
         </div>

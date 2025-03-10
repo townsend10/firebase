@@ -6,14 +6,6 @@ import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
-import {
-  GoogleAuthProvider,
-  browserLocalPersistence,
-  browserSessionPersistence,
-  getAuth,
-  setPersistence,
-  signInWithPopup,
-} from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -28,7 +20,7 @@ export const LoginModal = () => {
   const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
     useAction(googleSign, {
       onSuccess: (data) => {
-        toast.success(`Bem vindo ${data.displayName}`);
+        // toast.success(`Bem vindo ${data.displayName}`);
         router.push("/profile");
       },
       onError: (error) => {
@@ -57,8 +49,14 @@ export const LoginModal = () => {
     loginWithGoogle({});
   };
   return (
-    <div className="flex flex-grow items-center justify-center ">
-      <form action={onSubmit}>
+    <div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4 ">
+      <form
+        action={onSubmit}
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+      >
+        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+          Entrar
+        </h2>
         <div className="mb-4">
           <FormInput
             id="email"
