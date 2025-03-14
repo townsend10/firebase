@@ -24,6 +24,7 @@ import { UserProfile } from "./user-profile";
 import { Button } from "./ui/button";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import ProtectedRoute from "./protected-route";
 
 export const Header = () => {
   const [picture, setPicture] = useState<null | string>("");
@@ -170,61 +171,67 @@ export const Header = () => {
     //     ) : null}
     //   </div>
     // </div>
-    <div
-      className={`flex flex-col bg-gray-900 text-white h-screen overflow-hidden transition-all duration-300 shadow-lg ${
-        isExpanded ? "w-64" : "w-20"
-      } relative`}
-    >
-      <div className="flex items-center p-4">
-        <Button
-          onClick={() => setIsExpanded(!isExpanded)}
-          variant="ghost"
-          className="text-white"
-        >
-          <Menu size={24} />
-        </Button>
-        <h1
-          onClick={() => navigateHome.push("/")}
-          className={cn(
-            "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition",
-            isExpanded ? "justify-start space-x-4" : "justify-center"
-          )}
-        >
-          Clinica Médica
-        </h1>
-      </div>
 
-      <div className="flex-grow overflow-y-auto p-2">
-        {router.map((route) => (
-          <Link
-            href={route.href}
-            key={route.href}
-            className={`flex items-center p-3 rounded-lg hover:bg-gray-700 transition ${
+    <ProtectedRoute>
+      <div
+        className={`flex flex-col bg-gray-900 text-white h-screen overflow-hidden transition-all duration-300 shadow-lg ${
+          isExpanded ? "w-64" : "w-20"
+        } relative`}
+      >
+        <div className="flex items-center p-4">
+          <Button
+            onClick={() => setIsExpanded(!isExpanded)}
+            variant="ghost"
+            className="text-white"
+          >
+            <Menu size={24} />
+          </Button>
+          <h1
+            onClick={() => navigateHome.push("/")}
+            className={cn(
+              "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition",
               isExpanded ? "justify-start space-x-4" : "justify-center"
+            )}
+          >
+            Clinica Médica
+          </h1>
+        </div>
+
+        <div className="flex-grow overflow-y-auto p-2">
+          {router.map((route) => (
+            <Link
+              href={route.href}
+              key={route.href}
+              className={`flex items-center p-3 rounded-lg hover:bg-gray-700 transition ${
+                isExpanded ? "justify-start space-x-4" : "justify-center"
+              }`}
+            >
+              {route.icon}
+              {isExpanded && <span className="text-sm">{route.label}</span>}
+            </Link>
+          ))}
+        </div>
+
+        {isLoggedIn && (
+          <div
+            className={`flex items-center p-4 border-t border-gray-700 ${
+              isExpanded ? "justify-start" : "justify-center"
             }`}
           >
-            {route.icon}
-            {isExpanded && <span className="text-sm">{route.label}</span>}
-          </Link>
-        ))}
-      </div>
-
-      {isLoggedIn && (
-        <div
-          className={`flex items-center p-4 border-t border-gray-700 ${
-            isExpanded ? "justify-start" : "justify-center"
-          }`}
-        >
-          {/* <Image
+            {/* <Image
             src={image}
             alt="User Profile"
             className="w-10 h-10 rounded-full border border-gray-500"
           /> */}
-          <UserProfile firstName={googleName} logout={logout} picture={image} />
-          {isExpanded && (
-            <div className="ml-3">
-              <p className="text-sm font-medium">{googleName}</p>
-              {/* <Button
+            <UserProfile
+              firstName={googleName}
+              logout={logout}
+              picture={image}
+            />
+            {isExpanded && (
+              <div className="ml-3">
+                <p className="text-sm font-medium">{googleName}</p>
+                {/* <Button
                 onClick={logout}
                 variant="destructive"
                 size="sm"
@@ -232,10 +239,11 @@ export const Header = () => {
               >
                 Sair
               </Button> */}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </ProtectedRoute>
   );
 };
