@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { InitalPage } from "@/components/inital-page";
 import { Header } from "@/components/header";
-import { AuthProvider } from "@/components/provider/auth-provider";
+import { AuthProvider } from "@/components/provider/auth-context";
 
 const inter = Inter({ subsets: ["latin"] });
 

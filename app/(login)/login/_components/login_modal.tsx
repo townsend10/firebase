@@ -14,7 +14,7 @@ export const LoginModal = () => {
   const { isLoggedIn } = useAuth();
 
   if (isLoggedIn) {
-    router.push("/");
+    router.push("/home");
   }
 
   const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
