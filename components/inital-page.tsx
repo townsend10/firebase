@@ -38,7 +38,7 @@ export const InitalPage = () => {
     //     </ul>
     //   </div>
     // </div>
-    <div className="flex flex-col justify-center p-6 bg-white mt-10">
+    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
       <div className="w-full max-w-3xl text-center bg-white rounded-xl shadow-lg p-10 border border-gray-200">
         <h1 className="text-5xl font-extrabold text-blue-600 mb-4">
           🏥 Clínica Saúde+

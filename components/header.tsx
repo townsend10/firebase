@@ -15,7 +15,7 @@ import {
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { LogOutButton } from "./log-out-button";
@@ -29,7 +29,7 @@ export const Header = () => {
   const [picture, setPicture] = useState<null | string>("");
   const [initial, setInitial] = useState<string | undefined>("");
   const [phone, setPhone] = useState("");
-
+  const navigateHome = useRouter();
   const [googleName, setGoogleName] = useState<string | null | undefined>("");
   const [googlePhone, setGooglePhone] = useState<string | null | undefined>("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -99,11 +99,11 @@ export const Header = () => {
           label: "Lista de Pacientes",
           icon: <MedalIcon className="h-4 w-4" />,
         },
-        {
-          href: "/users",
-          label: "Usuarios",
-          icon: <User2 className="h-4 w-4" />,
-        },
+        // {
+        //   href: "/users",
+        //   label: "Usuarios",
+        //   icon: <User2 className="h-4 w-4" />,
+        // },
         {
           href: "/schedules",
           label: "Agendamentos",
@@ -184,6 +184,7 @@ export const Header = () => {
           <Menu size={24} />
         </Button>
         <h1
+          onClick={() => navigateHome.push("/")}
           className={cn(
             "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition",
             isExpanded ? "justify-start space-x-4" : "justify-center"
@@ -194,7 +195,6 @@ export const Header = () => {
       </div>
 
       <div className="flex-grow overflow-y-auto p-2">
-        
         {router.map((route) => (
           <Link
             href={route.href}
