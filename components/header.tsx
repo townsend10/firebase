@@ -80,7 +80,7 @@ export const Header = () => {
   const router = isLoggedIn
     ? [
         {
-          href: "/",
+          href: "/home",
           label: "Pagina Inicial",
           icon: <Home className="h-4 w-4" />,
         },
@@ -92,7 +92,7 @@ export const Header = () => {
         },
         {
           href: "/medicalCare",
-          label: "Consulta Medica",
+          label: "Agendar",
           icon: <MedalIcon className="h-4 w-4" />,
         },
         {
@@ -187,9 +187,9 @@ export const Header = () => {
             <Menu size={24} />
           </Button>
           <h1
-            onClick={() => navigateHome.push("/")}
+            onClick={() => navigateHome.push("/home")}
             className={cn(
-              "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition",
+              "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer",
               isExpanded ? "justify-start space-x-4" : "justify-center"
             )}
           >
