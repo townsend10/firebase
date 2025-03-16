@@ -94,6 +94,23 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     });
   }, [getSchedulings]);
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-grow items-center justify-center">
+        <h1 className="text-3xl text-muted-foreground">
+          Nenhum paciente cadastrado, por favor clique{" "}
+          <button
+            className=" cursor-pointer hover:text-red-500"
+            onClick={() => router.push("/medicalCare")}
+          >
+            aqui
+          </button>{" "}
+          e cadastre um!
+        </h1>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full ml-5">
       <h1 className="text-5xl font-bold mb-5 mt-5 ">Pacientes</h1>

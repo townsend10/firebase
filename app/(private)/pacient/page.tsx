@@ -32,22 +32,23 @@ const PagePacient = () => {
       </div>
     );
   }
-  if (!pacients.name) {
-    return (
-      <div className="flex flex-grow items-center justify-center">
-        <h1 className="text-3xl text-muted-foreground">
-          Nenhum paciente cadastrado, por favor clique{" "}
-          <button
-            className=" cursor-pointer hover:text-red-500"
-            onClick={() => router.push("/medicalCare")}
-          >
-            aqui
-          </button>{" "}
-          e cadastre um!
-        </h1>
-      </div>
-    );
-  }
+  // if (!pacients.name) {
+  //   return (
+  //     <div className="flex flex-grow items-center justify-center">
+  //       <h1 className="text-3xl text-muted-foreground">
+  //         Nenhum paciente cadastrado, por favor clique{" "}
+  //         <button
+  //           className=" cursor-pointer hover:text-red-500"
+  //           onClick={() => router.push("/medicalCare")}
+  //         >
+  //           aqui
+  //         </button>{" "}
+  //         e cadastre um!
+  //       </h1>
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="flex flex-grow">
       <ListPacient pacient={pacients} />

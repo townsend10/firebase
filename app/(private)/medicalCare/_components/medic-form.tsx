@@ -18,7 +18,7 @@ export const MedicForm = () => {
   const { execute, fieldErrors } = useAction(createPacientMedic, {
     onSuccess: (data) => {
       toast.success(`paciente foi  ${data.name} criado com sucesso`);
-      router.push("/profile");
+      router.push("/pacient");
     },
     onError: (error) => {
       toast.error(error);

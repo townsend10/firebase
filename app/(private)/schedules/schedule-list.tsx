@@ -4,13 +4,15 @@ import { getPacients } from "@/actions/get-pacients";
 import { getSchedules } from "@/actions/get-schedules";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
-import { Schedule } from "@/types";
+import { Pacient, Schedule } from "@/types";
 import { DocumentData } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { use } from "react";
-
-export const ScheduleList = () => {
+interface ListPacientProps {
+  pacientMedicData: Pacient;
+}
+export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
@@ -66,8 +68,25 @@ export const ScheduleList = () => {
     router.push(`/pacient/${pacientId}/schedule/${scheduleId}`);
   };
 
+  if (!schedules || schedules.length === 0) {
+    return (
+      <div className="flex flex-grow items-center justify-center">
+        <h1 className="text-3xl text-muted-foreground">
+          Nenhum paciente agendado, por favor clique{" "}
+          <button
+            className=" cursor-pointer hover:text-red-500"
+            onClick={() => router.push("/pacient")}
+          >
+            aqui
+          </button>{" "}
+          e agende um!
+        </h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col p-6 text-xl">
+    <div className="flex flex-col p-6 text-xl ">
       <h1 className="text-5xl font-bold text-gray-800 mb-6">📅 Agendamentos</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
