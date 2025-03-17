@@ -117,32 +117,35 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
         <h1 className="text-2xl font-semibold text-gray-700 text-center mb-6">
           Editar : {data?.name}{" "}
         </h1>
-        <FormInput
-          id="name"
-          placeholder="nome"
-          className="w-full mb-2"
-          defaultValue={data?.name}
-        />
-        <FormInput
-          id="phone"
-          placeholder="Telefone"
-          className="w-full mb-2"
-          defaultValue={data?.phone}
-        />
-        <FormInput
-          id="email"
-          className="w-full mb-2"
-          placeholder="email"
-          defaultValue={data?.email}
-        />
-        <FormInput
-          id="birthdayDate"
-          className="w-full mb-2"
-          type="date"
-          placeholder="idade"
-          defaultValue={data?.birthdayDate}
-        />
-        <div className="text-center mb-6">
+        <div className="space-y-4">
+          <FormInput
+            id="name"
+            placeholder="nome"
+            className="w-full mb-2"
+            defaultValue={data?.name}
+          />
+          <FormInput
+            id="phone"
+            placeholder="Telefone"
+            className="w-full mb-2"
+            defaultValue={data?.phone}
+          />
+          <FormInput
+            id="email"
+            className="w-full mb-2"
+            placeholder="email"
+            defaultValue={data?.email}
+          />
+          <FormInput
+            id="birthdayDate"
+            className="w-full mb-2"
+            type="date"
+            placeholder="idade"
+            defaultValue={data?.birthdayDate}
+          />
+        </div>
+
+        <div className="text-center mt-6">
           <Button className="w-full" variant="destructive">
             Salvar
           </Button>

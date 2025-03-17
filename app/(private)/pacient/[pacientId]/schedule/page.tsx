@@ -2,7 +2,7 @@ import { Scheduling } from "./_components/scheduling";
 
 const PageSchedule = () => {
   return (
-    <div className="flex w-full">
+    <div className="flex flex-grow">
       <Scheduling />
     </div>
   );

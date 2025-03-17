@@ -33,6 +33,24 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
 
   const { date, hour, pacientId, status } = data;
+
+  const [hoursStr, minutesStr] = hour.split(":");
+  const hours = parseInt(hoursStr, 10);
+  const minutes = parseInt(minutesStr, 10);
+
+  if (
+    isNaN(hours) ||
+    isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return {
+      error:
+        "Hora inválida. Verifique o formato HH:MM e os limites (00:00 - 23:59).",
+    };
+  }
   let schedule = data;
   const existingSchedulesQuery = query(
     collection(db, "schedule"),

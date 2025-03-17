@@ -21,12 +21,34 @@ export const Scheduling = () => {
   const handleChange = (event: any) => {
     const value = event.target.value;
 
-    // Usando uma regex para formatar a entrada
-    const formattedValue = value
-      .replace(/[^0-9]/g, "") // Remove qualquer caractere que não seja número
-      .slice(0, 4) // Limita a 4 caracteres
-      .replace(/(\d{2})(\d{0,2})/, "$1:$2"); // Adiciona ":" após os primeiros dois dígitos
-
+    // Remove caracteres não numéricos e limita a 4 dígitos
+    const numericValue = value.replace(/[^0-9]/g, "").slice(0, 4);
+  
+    // Extrai horas e minutos
+    const hours = parseInt(numericValue.slice(0, 2));
+    const minutes = parseInt(numericValue.slice(2, 4));
+  
+    // Validação de horas
+    if (hours > 23) {
+      setTime("23:59");
+      return;
+    }
+  
+    // Validação de minutos
+    if (minutes > 59) {
+      // Se as horas já estiverem no máximo (23), define o tempo como 23:59
+      if(hours === 23){
+          setTime("23:59")
+      }else{
+          //caso as horas ainda n cheguem no limite, seta os minutos para o limite maximo
+          setTime(hours.toString().padStart(2, '0') + ":59");
+      }
+      return;
+    }
+  
+    // Formata a entrada com ":"
+    const formattedValue = numericValue.replace(/(\d{2})(\d{0,2})/, "$1:$2");
+  
     setTime(formattedValue);
   };
 
@@ -71,13 +93,19 @@ export const Scheduling = () => {
     return null;
   }
   return (
-    <div className="flex flex-grow  justify-center items-center">
-      <form action={onSubmit}>
-        <div className="mb-4">
+    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
+      <form
+        action={onSubmit}
+        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+      >
+        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+          Agendar Paciente
+        </h2>
+        <div className="space-y-4">
           <FormInput
             id="date"
             type="date"
-            className="mb-10"
+            className="w-full"
             placeholder="Data do agendamento"
             errors={fieldErrors}
             min={data}
@@ -85,7 +113,7 @@ export const Scheduling = () => {
           />
           <FormInput
             id="hour"
-            className="mb-10"
+            className="w-full"
             type="text"
             value={time}
             placeholder="HH:MM"
@@ -108,7 +136,7 @@ export const Scheduling = () => {
             name="status"
             // value={value}
             // onChange={onChange}
-            className="border rounded px-2 py-1"
+            className="w-full"
           >
             <option value="" id="status" disabled>
               Selecione um status
@@ -123,8 +151,8 @@ export const Scheduling = () => {
           </select>
         </div>
 
-        <div className="text-center space-x-2">
-          <Button size="lg" variant={"destructive"}>
+        <div className="text-center mt-6">
+          <Button size="lg" variant={"destructive"} className="w-full">
             Agendar
           </Button>
         </div>
