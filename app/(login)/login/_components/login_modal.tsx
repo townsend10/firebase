@@ -49,47 +49,47 @@ export const LoginModal = () => {
     loginWithGoogle({});
   };
   return (
-    <div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4 ">
-      <form
-        action={onSubmit}
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
-          Entrar
-        </h2>
-        <div className="mb-4">
-          <FormInput
-            id="email"
-            type="email"
-            className="mb-10"
-            placeholder="Digite email"
-            errors={fieldErrors}
-          />
-          <FormInput
-            type="password"
-            id="password"
-            className="mb-30"
-            placeholder="Digite sua senha"
-            errors={fieldErrors}
-          />
-        </div>
-
-        <div className="text-center">
-          <Button size="lg" variant={"destructive"}>
-            Login
-          </Button>
-          <Button onClick={GoogleLogin} className="ml-5" size="lg">
-            Google
-          </Button>
-          <Button
-            onClick={() => router.push("/register")}
-            className="ml-5"
-            size="lg"
-          >
-            Cadastrar
-          </Button>
-        </div>
-      </form>
+<div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4">
+  <form
+    action={onSubmit}
+    className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md mx-auto" // Adicionado mx-auto para centralizar em telas maiores
+  >
+    <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+      Entrar
+    </h2>
+    <div className="mb-4">
+      <FormInput
+        id="email"
+        type="email"
+        className="mb-4" // Ajustado o espaçamento para melhor responsividade
+        placeholder="Digite email"
+        errors={fieldErrors}
+      />
+      <FormInput
+        type="password"
+        id="password"
+        className="mb-6" // Ajustado o espaçamento para melhor responsividade
+        placeholder="Digite sua senha"
+        errors={fieldErrors}
+      />
     </div>
+
+    <div className="flex flex-col sm:flex-row justify-center items-center gap-2"> {/* Mudança para flex-col em telas menores e flex-row em telas maiores */}
+      <Button size="lg" variant={"destructive"} className="w-full sm:w-auto"> {/* Adicionado w-full para telas menores */}
+        Login
+      </Button>
+      <Button onClick={GoogleLogin} className="w-full sm:w-auto" size="lg"> {/* Adicionado w-full para telas menores */}
+        Google
+      </Button>
+      <Button
+        onClick={() => router.push("/register")}
+        className="w-full sm:w-auto" // Adicionado w-full para telas menores
+        size="lg"
+      >
+        Cadastrar
+      </Button>
+    </div>
+  </form>
+</div>
   );
 };

@@ -189,11 +189,12 @@ export const Header = () => {
           <h1
             onClick={() => navigateHome.push("/home")}
             className={cn(
-              "flex items-center font-extrabold text-white  p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer",
+              "flex items-center font-extrabold text-white p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer",
               isExpanded ? "justify-start space-x-4" : "justify-center"
             )}
           >
-            Clinica Médica
+            {isExpanded ? "Clínica Médica" : "CM"}{" "}
+            {/* Mudança para abreviação em modo compacto */}
           </h1>
         </div>
 
@@ -218,11 +219,6 @@ export const Header = () => {
               isExpanded ? "justify-start" : "justify-center"
             }`}
           >
-            {/* <Image
-            src={image}
-            alt="User Profile"
-            className="w-10 h-10 rounded-full border border-gray-500"
-          /> */}
             <UserProfile
               firstName={googleName}
               logout={logout}
@@ -231,14 +227,6 @@ export const Header = () => {
             {isExpanded && (
               <div className="ml-3">
                 <p className="text-sm font-medium">{googleName}</p>
-                {/* <Button
-                onClick={logout}
-                variant="destructive"
-                size="sm"
-                className="mt-1"
-              >
-                Sair
-              </Button> */}
               </div>
             )}
           </div>
