@@ -33,7 +33,7 @@ export const RegisterModal = () => {
   } = useAction(createUser, {
     onSuccess: (data) => {
       toast.success(`${data.email} foi criado com sucesso`);
-      router.push("/profile");
+      router.push("/home");
     },
     onError: (error) => {
       toast.error(error);

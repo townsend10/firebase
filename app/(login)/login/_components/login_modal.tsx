@@ -13,8 +13,8 @@ export const LoginModal = () => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  if (isLoggedIn) {
-    router.push("/home");
+  if (!isLoggedIn) {
+    router.push("/login");
   }
 
   const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
@@ -80,6 +80,13 @@ export const LoginModal = () => {
           </Button>
           <Button onClick={GoogleLogin} className="ml-5" size="lg">
             Google
+          </Button>
+          <Button
+            onClick={() => router.push("/register")}
+            className="ml-5"
+            size="lg"
+          >
+            Cadastrar
           </Button>
         </div>
       </form>
