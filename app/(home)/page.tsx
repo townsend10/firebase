@@ -7,15 +7,12 @@ export default function Home() {
   const router = useRouter();
   const { currentUser } = getAuth();
 
-  // if (!currentUser) {
-  //   router.replace("/login");
-  // }
+  if (!currentUser) {
+    router.replace("/login");
+  }
+  if (currentUser) {
+    router.replace("/home");
+  }
 
-  return (
-    <div className="flex flex-grow">
-      <InitalPage />
-
-      {/* {currentUser?.email} */}
-    </div>
-  );
+  return null;
 }
