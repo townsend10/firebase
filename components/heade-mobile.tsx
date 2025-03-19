@@ -174,7 +174,7 @@ export const HeaderMobile = () => {
 
     <ProtectedRoute>
       <div
-        className={`flex flex-col bg-gray-900 text-white h-screen overflow-hidden transition-all duration-300 shadow-lg w-screen`}
+        className={`flex flex-col bg-gray-900 text-white  transition-all duration-300 shadow-lg min-h-screen`}
       >
         <div className="flex items-center p-4 justify-between">
           <Button
@@ -188,7 +188,7 @@ export const HeaderMobile = () => {
             onClick={() => navigateHome.push("/home")}
             className="flex items-center font-extrabold text-white p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer"
           >
-            Clínica Médica
+            Clínica Médica MOBILE
           </h1>
         </div>
 

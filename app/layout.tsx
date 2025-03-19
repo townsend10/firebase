@@ -25,7 +25,7 @@ export default function RootLayout({
         <AuthProvider>
           <Toaster />
           <div className="flex">
-            <div className="sm:hidden ">
+            <div className="sm:hidden  ">
               <HeaderMobile />
             </div>
             <div className="hidden sm:block">
