@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { InitalPage } from "@/components/inital-page";
 import { Header } from "@/components/header";
 import { AuthProvider } from "@/components/provider/auth-context";
+import { HeaderMobile } from "@/components/heade-mobile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,8 +25,13 @@ export default function RootLayout({
         <AuthProvider>
           <Toaster />
           <div className="flex">
-            <Header />
-            {children}
+            <div className="sm:hidden ">
+              <HeaderMobile />
+            </div>
+            <div className="hidden sm:block">
+              <Header />
+            </div>
+            <div className="flex-grow">{children}</div>
           </div>
         </AuthProvider>
       </body>
