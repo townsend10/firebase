@@ -38,7 +38,6 @@ export const MedicForm = () => {
     execute({ birthdayDate, cpf, email, name, phone });
   };
 
-  console.log(onSubmit);
   return (
     // <div className="flex flex-grow  justify-center items-center">
     //   <form action={onSubmit}>

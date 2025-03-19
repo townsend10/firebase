@@ -49,7 +49,6 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
 
     const id = params.pacientId as string;
     const phone = formData.get("phone") as string;
-    console.log("ID DO PACIENT " + id);
 
     UpdatePacient({ birthdayDate, email, name, phone, id });
   };
@@ -70,7 +69,6 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
       if (data?.birthdayDate != undefined) {
         const birthDate = new Date(data?.birthdayDate);
 
-        console.log("nive" + birthDate);
         const currentDate = new Date();
         const ageDiff = currentDate.getFullYear() - birthDate.getFullYear();
         const isBirthdayPassed =

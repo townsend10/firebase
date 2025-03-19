@@ -44,7 +44,6 @@ export const InfoPacient = ({ pacient }: InfoPacientProps) => {
       if (data?.birthdayDate != undefined) {
         const birthDate = new Date(data?.birthdayDate);
 
-        console.log("nive" + birthDate);
         const currentDate = new Date();
         const ageDiff = currentDate.getFullYear() - birthDate.getFullYear();
         const isBirthdayPassed =
