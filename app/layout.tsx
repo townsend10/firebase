@@ -25,13 +25,15 @@ export default function RootLayout({
         <AuthProvider>
           <Toaster />
           <div className="flex">
-            <div className="sm:hidden  ">
+            <div className="sm:hidden">
               <HeaderMobile />
             </div>
             <div className="hidden sm:block">
               <Header />
             </div>
-            <div className="flex-grow">{children}</div>
+            <div className="flex-grow flex flex-col min-h-screen">
+              {children}
+            </div>
           </div>
         </AuthProvider>
       </body>

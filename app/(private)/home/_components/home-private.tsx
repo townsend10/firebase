@@ -1,12 +1,13 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export const HomePrivate = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-3xl text-center bg-white rounded-xl shadow-lg p-10 border border-gray-200">
+    <div className="flex flex-col justify-center min-h-screen items-center  bg-gray-100 p-4">
+      <div className=" text-center bg-white rounded-xl shadow-lg p-10 border border-gray-200">
         <h1 className="text-5xl font-extrabold text-blue-600 mb-4">
           🏥 Clínica Saúde+
         </h1>
@@ -53,5 +54,27 @@ export const HomePrivate = () => {
         </button>
       </div>
     </div>
+    // <div className="flex flex-col justify-center items-center p-4 min-h-screen ">
+    //   <h1 className="text-center bg-white rounded-xl shadow-lg p-10 border ">
+    //     🏥 Clínica Saúde+
+    //   </h1>
+    //   <p className="text-xl text-gray-700 font-medium">
+    //     O melhor sistema para agendamento de consultas médicas.
+    //   </p>
+    //   <div>
+    //     <p>📅 Agendar Agende suas consultas de forma rápida e prática.</p>
+    //   </div>
+    //   <div>
+    //     ⏰ Horários Veja seus horários de consulta, altere ou cancele a qualquer
+    //     hora.
+    //   </div>
+    //   <div>
+    //     <p>
+    //       👩‍⚕️ Profissionais Atendimento com os melhores médicos e especialistas.
+    //     </p>
+    //   </div>
+
+    //   <Button>Começar</Button>
+    // </div>
   );
 };

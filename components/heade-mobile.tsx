@@ -174,22 +174,28 @@ export const HeaderMobile = () => {
 
     <ProtectedRoute>
       <div
-        className={`flex flex-col bg-gray-900 text-white  transition-all duration-300 shadow-lg min-h-screen`}
+        className={`flex flex-col bg-gray-900 text-white h-full duration-300 shadow-lg ${
+          isExpanded ? "w-64" : "w-16 items-center"
+        } relative`}
       >
-        <div className="flex items-center p-4 justify-between">
-          <Button
-            onClick={() => setIsExpanded(!isExpanded)}
-            variant="ghost"
-            className="text-white"
-          >
-            <Menu size={24} />
-          </Button>
-          <h1
-            onClick={() => navigateHome.push("/home")}
-            className="flex items-center font-extrabold text-white p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer"
-          >
-            Clínica Médica MOBILE
-          </h1>
+        <div className={`flex items-center p-4 justify-between `}>
+          <div>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-white focus:outline-none "
+            >
+              <Menu size={20} className="" />
+            </button>
+          </div>
+
+          {isExpanded && (
+            <h1
+              onClick={() => navigateHome.push("/home")}
+              className="flex flex-grow items-center justify-center font-extrabold text-white p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer"
+            >
+              Clínica Médica
+            </h1>
+          )}
         </div>
 
         <div className="flex-grow overflow-y-auto p-2">
@@ -197,10 +203,14 @@ export const HeaderMobile = () => {
             <Link
               href={route.href}
               key={route.href}
-              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition justify-start space-x-4"
+              className={`flex items-center p-3 rounded-lg hover:bg-gray-700 transition justify-start ${
+                isExpanded ? "space-x-4" : "justify-center"
+              }`}
             >
-              {route.icon}
-              <span className="text-sm">{route.label}</span>
+              <div className="flex justify-center items-center">
+                {route.icon}
+              </div>
+              {isExpanded && <span className="text-sm">{route.label}</span>}
             </Link>
           ))}
         </div>
@@ -212,9 +222,11 @@ export const HeaderMobile = () => {
               logout={logout}
               picture={image}
             />
-            <div className="ml-3">
-              <p className="text-sm font-medium">{googleName}</p>
-            </div>
+            {isExpanded && (
+              <div className="ml-3">
+                <p className="text-sm font-medium">{googleName}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
