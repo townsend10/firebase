@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export const SnakeGame = () => {
   const [note1, setNota1] = useState("");
   const [note2, setNota2] = useState("");
-
+  const router = useRouter();
   const [average, setAverage] = useState<number | null>(null);
 
   const handleInputChange =
@@ -63,6 +64,9 @@ export const SnakeGame = () => {
           </div>
         </div>
       )}
+      <Button className="mt-5" onClick={() => router.push("/games/snake")}>
+        Outro game
+      </Button>
     </div>
   );
 };
