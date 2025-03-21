@@ -24,16 +24,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <Toaster />
-          <div className="flex">
+          <div className="flex ">
             <div className="sm:hidden">
               <HeaderMobile />
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden p-0 sm:block">
               <Header />
             </div>
-            <div className="flex-grow flex flex-col min-h-screen">
-              {children}
-            </div>
+            <div className="flex-grow flex flex-col ">{children}</div>
           </div>
         </AuthProvider>
       </body>

@@ -31,7 +31,7 @@ export const GuessNumber = () => {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
+    <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Jogo de Adivinhação</h1>
       <p className="mt-2 text-muted-foreground">
         Tente adivinhar o número entre 1 e 100.

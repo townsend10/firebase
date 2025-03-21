@@ -174,7 +174,7 @@ export const Header = () => {
 
     <ProtectedRoute>
       <div
-        className={`flex flex-col bg-gray-900 text-white h-screen overflow-hidden transition-all duration-300 shadow-lg ${
+        className={`flex flex-col bg-gray-900 m-0 text-white min-h-screen overflow-hidden transition-all duration-300 shadow-lg ${
           isExpanded ? "w-64" : "w-20"
         } relative`}
       >
