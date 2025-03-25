@@ -34,23 +34,6 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   const { date, hour, pacientId, status } = data;
 
-  const [hoursStr, minutesStr] = hour.split(":");
-  const hours = parseInt(hoursStr, 10);
-  const minutes = parseInt(minutesStr, 10);
-
-  if (
-    isNaN(hours) ||
-    isNaN(minutes) ||
-    hours < 0 ||
-    hours > 23 ||
-    minutes < 0 ||
-    minutes > 59
-  ) {
-    return {
-      error:
-        "Hora inválida. Verifique o formato HH:MM e os limites (00:00 - 23:59).",
-    };
-  }
   let schedule = data;
   const existingSchedulesQuery = query(
     collection(db, "schedule"),
@@ -92,7 +75,12 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const isTimeSlotOccupied = timeSlotSnapshot.docs.some((doc) => {
     const { hour: existingHour } = doc.data();
     const existingDateTime = new Date(`${date}T${existingHour}:00`);
-    return existingDateTime >= startTime && existingDateTime <= endTime;
+    // return existingDateTime >= startTime || existingDateTime <= endTime;
+    // return existingDateTime <= endTime ;
+
+    return existingDateTime >= startTime && existingDateTime < endTime;
+
+    // return existingDateTime > requestDateTime && existingDateTime <= endTime; // Mudança aqui
   });
 
   if (isTimeSlotOccupied) {

@@ -4,7 +4,15 @@ import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";
 import { getAuth } from "firebase/auth";
-import { doc, getFirestore, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { InputType, ReturnType } from "./types";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
@@ -26,6 +34,48 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
 
   const { hour, date, status, id } = data;
+
+  const existingScheduleHourQuery = query(
+    collection(db, "schedule"),
+    where("hour", "==", hour),
+    where("date", "==", date)
+  );
+
+  const existingScheduleHourQuerySnapshot = await getDocs(
+    existingScheduleHourQuery
+  );
+  if (!existingScheduleHourQuerySnapshot.empty) {
+    return {
+      error: "Horario ja delimitado por outro paciente",
+    };
+  }
+  const requestDateTime = new Date(`${date}T${hour}:00`);
+  const startTime = new Date(requestDateTime.getTime() - 60 * 60 * 1000); // 1 hora antes
+  const endTime = new Date(requestDateTime.getTime() + 60 * 60 * 1000); // 1 hora depois
+
+  // Verifica se há agendamentos dentro do intervalo de 1 hora
+  const timeSlotQuery = query(
+    collection(db, "schedule"),
+    where("date", "==", date)
+  );
+
+  const timeSlotSnapshot = await getDocs(timeSlotQuery);
+  const isTimeSlotOccupied = timeSlotSnapshot.docs.some((doc) => {
+    const { hour: existingHour } = doc.data();
+    const existingDateTime = new Date(`${date}T${existingHour}:00`);
+    // return existingDateTime >= startTime || existingDateTime <= endTime;
+    // return existingDateTime <= endTime ;
+
+    return existingDateTime >= startTime && existingDateTime < endTime;
+
+    // return existingDateTime > requestDateTime && existingDateTime <= endTime; // Mudança aqui
+  });
+
+  if (isTimeSlotOccupied) {
+    return {
+      error: "Este horário está lotado.",
+    };
+  }
   let pacient = data || undefined;
   try {
     const pacientsRef = doc(db, "schedule", id);

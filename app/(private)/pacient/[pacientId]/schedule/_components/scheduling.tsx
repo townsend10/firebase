@@ -15,6 +15,13 @@ export const Scheduling = () => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const getPacientId = params.pacientId as string;
+  const currentTime = new Date();
+  const [selectedDate, setSelectedDate] = useState<Date | null | string>(null); // Alteração aqui
+  const [selectedDatex, setSelectedDatex] = useState<Date | null | string>(
+    null
+  ); // Alteração aqui
+
+  const currentHour = currentTime.getHours().toString();
 
   const [time, setTime] = useState("");
 
@@ -23,32 +30,32 @@ export const Scheduling = () => {
 
     // Remove caracteres não numéricos e limita a 4 dígitos
     const numericValue = value.replace(/[^0-9]/g, "").slice(0, 4);
-  
+
     // Extrai horas e minutos
     const hours = parseInt(numericValue.slice(0, 2));
     const minutes = parseInt(numericValue.slice(2, 4));
-  
+
     // Validação de horas
     if (hours > 23) {
       setTime("23:59");
       return;
     }
-  
+
     // Validação de minutos
     if (minutes > 59) {
       // Se as horas já estiverem no máximo (23), define o tempo como 23:59
-      if(hours === 23){
-          setTime("23:59")
-      }else{
-          //caso as horas ainda n cheguem no limite, seta os minutos para o limite maximo
-          setTime(hours.toString().padStart(2, '0') + ":59");
+      if (hours === 23) {
+        setTime("23:59");
+      } else {
+        //caso as horas ainda n cheguem no limite, seta os minutos para o limite maximo
+        setTime(hours.toString().padStart(2, "0") + ":59");
       }
       return;
     }
-  
+
     // Formata a entrada com ":"
     const formattedValue = numericValue.replace(/(\d{2})(\d{0,2})/, "$1:$2");
-  
+
     setTime(formattedValue);
   };
 
@@ -71,23 +78,51 @@ export const Scheduling = () => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
     },
   });
 
+  // const onSubmit = (formData: FormData) => {
+  //   const date = formData.get("date") as any;
+
+  //   const hour = formData.get("hour") as any;
+  //   const pacientId = getPacientId;
+
+  //   const status = formData.get("status") as
+  //     | "confirm"
+  //     | "cancelled"
+  //     | "waiting"
+  //     | "none";
+  //   // remove o "h" caso ele exista
+  //   if (hour.endsWith("h")) {
+  //     hour = hour.slice(0, -1);
+  //   }
+
+  //   execute({ date, hour, pacientId, status });
+  // };
+
   const onSubmit = (formData: FormData) => {
-    const date = formData.get("date") as any;
-
-    const hour = formData.get("hour") as string;
+    const dateString = formData.get("date") as any;
+    let hourString = formData.get("hour") as string;
     const pacientId = getPacientId;
-
     const status = formData.get("status") as
       | "confirm"
       | "cancelled"
       | "waiting"
       | "none";
 
-    execute({ date, hour, pacientId, status });
+    // remove o "h" caso ele exista
+    if (hourString.endsWith("h")) {
+      hourString = hourString.slice(0, -1);
+    }
+
+    const combinedDateTimeString = `${dateString}T${hourString}:00`;
+
+    execute({
+      date: dateString,
+      hour: hourString,
+      pacientId,
+      status,
+    });
   };
   if (!isLoggedIn) {
     return null;
@@ -106,9 +141,10 @@ export const Scheduling = () => {
             id="date"
             type="date"
             className="w-full"
+          
             placeholder="Data do agendamento"
             errors={fieldErrors}
-            min={data}
+            min={new Date(data).toISOString().split("T")[0]} // Converter para string YYYY-MM-DD
             required
           />
           <FormInput
@@ -116,7 +152,7 @@ export const Scheduling = () => {
             className="w-full"
             type="text"
             value={time}
-            placeholder="HH:MM"
+            placeholder={"HH:MM"}
             errors={fieldErrors}
             required
             min={5}

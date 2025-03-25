@@ -35,6 +35,19 @@ export const ScheduleEdit = () => {
       router.push("/login");
     },
   });
+  const {
+    data: getData,
+    execute,
+    fieldErrors,
+  } = useAction(updateSchedule, {
+    onSuccess: (data) => {
+      toast.success(`Hora alterada  com sucesso`);
+      router.push(`/pacient`);
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
 
   useEffect(() => {
     getScheduling({ date: "", hour: "", id: scheduleId, status: "none" });
@@ -79,21 +92,6 @@ export const ScheduleEdit = () => {
 
   let yourDate = new Date();
   const formatData = yourDate.toISOString().split("T")[0];
-
-  const {
-    data: getData,
-    execute,
-    fieldErrors,
-  } = useAction(updateSchedule, {
-    onSuccess: (data) => {
-      toast.success(`paciente foi  ${data.id} criado com sucesso`);
-      router.push(`/pacient`);
-    },
-    onError: (error) => {
-      toast.error(error);
-      router.push("/login");
-    },
-  });
 
   return (
     <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
