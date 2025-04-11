@@ -4,12 +4,16 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-  const { currentUser } = getAuth();
+  // const router = useRouter();
+  // const { currentUser } = getAuth();
 
-  if (!currentUser) {
-    router.replace("/login");
-  }
+  // if (!currentUser) {
+  //   router.replace("/login");
+  // }
 
-  return null;
+  return (
+    <div>
+      <InitalPage />
+    </div>
+  );
 }
