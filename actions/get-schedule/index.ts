@@ -11,6 +11,8 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  query,
+  where,
 } from "firebase/firestore";
 import { GetSchedule } from "./schema";
 import { ReturnType, InputType } from "./types";
@@ -37,7 +39,14 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   try {
     const schedulingRef = doc(db, "schedule", id);
     const docSnap = await getDoc(schedulingRef);
+    const schedulesCollection = collection(db, "schedule");
+    const q = query(schedulesCollection, where("status", "!=", "cancelled")); // Adicione este filtro
 
+    const querySnapshot = await getDocs(q);
+    const schedules = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     if (docSnap.exists()) {
       const { date, hour, status } = docSnap.data();
       console.log("ID:", docSnap.id);

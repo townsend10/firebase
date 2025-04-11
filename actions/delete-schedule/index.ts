@@ -18,8 +18,6 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  console.log("CURRENTUSER" + currentUser);
-
   if (!auth) {
     return {
       error: "Erro ao inicializar o firebase",

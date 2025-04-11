@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  // const { currentUser } = getAuth();
+  const { currentUser } = getAuth();
 
-  // if (!currentUser) {
-  //   router.replace("/login");
-  // }
+  if (!currentUser) {
+    router.replace("/login");
+  }
 
   return null;
 }
