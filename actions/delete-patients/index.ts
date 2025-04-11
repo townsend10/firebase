@@ -3,7 +3,15 @@ import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";
 import { getAuth } from "firebase/auth";
-import { deleteDoc, doc, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from "firebase/firestore";
 import { DeletePatients } from "./schema";
 import { ReturnType, InputType } from "./types";
 
@@ -26,9 +34,16 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
   const { id } = data;
+  const scheduleId = collection(db, "schedule");
+  const q = query(scheduleId, where("pacientId", "==", id));
+
   let pacients;
   try {
+    const querySnapshot = await getDocs(q);
+    const docSchedule = querySnapshot.docs[0];
+
     await deleteDoc(doc(db, "pacient", id));
+    await deleteDoc(doc(db, "schedule", docSchedule.id));
 
     console.log("ID DO PACIENT", id);
     return { data: pacients };
