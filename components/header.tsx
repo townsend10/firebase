@@ -9,13 +9,14 @@ import {
   Contact,
   Gamepad2Icon,
   Home,
+  ListIcon,
   MedalIcon,
   Menu,
   User2,
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { LogOutButton } from "./log-out-button";
@@ -25,10 +26,9 @@ import { Button } from "./ui/button";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import ProtectedRoute from "./protected-route";
+import { ModeToggle } from "./mode-toggle";
 
 export const Header = () => {
-  const [picture, setPicture] = useState<null | string>("");
-  const [initial, setInitial] = useState<string | undefined>("");
   const [phone, setPhone] = useState("");
   const navigateHome = useRouter();
   const [googleName, setGoogleName] = useState<string | null | undefined>("");
@@ -40,7 +40,10 @@ export const Header = () => {
   const [name, setName] = useState("");
   const paramas = useParams();
   const [id, setId] = useState("");
+  const [isSelected, setIsSelected] = useState(false);
   const auth = getAuth();
+  const pathname = usePathname();
+
   const userId = auth.currentUser;
 
   const { isLoggedIn, user } = useAuth();
@@ -115,6 +118,11 @@ export const Header = () => {
           label: "Games",
           icon: <Gamepad2Icon className="h-4 w-4" />,
         },
+        {
+          href: "/list",
+          label: "Lista de Pacientes",
+          icon: <ListIcon className="h-4 w-4" />,
+        },
       ]
     : [
         {
@@ -137,6 +145,10 @@ export const Header = () => {
       console.error("Erro ao deslogar:", error);
     }
   };
+
+  // useEffect(() => {
+  //   setIsSelected(pathnam);
+  // }, [currentRouter.pathname]);
 
   return (
     // <div className="flex flex-col bg-gray-900 text-white h-screen w-full max-w-sm  overflow-hidden">
@@ -174,7 +186,7 @@ export const Header = () => {
 
     <ProtectedRoute>
       <div
-        className={`flex flex-col bg-gray-900 m-0 text-white min-h-screen overflow-hidden transition-all duration-300 shadow-lg ${
+        className={`flex flex-col  m-0 text-muted-foreground dark:text-white min-h-screen overflow-hidden transition-all duration-300 shadow-lg ${
           isExpanded ? "w-64" : "w-20"
         } relative`}
       >
@@ -182,14 +194,14 @@ export const Header = () => {
           <Button
             onClick={() => setIsExpanded(!isExpanded)}
             variant="ghost"
-            className="text-white"
+            className="dark:text-white"
           >
             <Menu size={24} />
           </Button>
           <h1
             onClick={() => navigateHome.push("/home")}
             className={cn(
-              "flex items-center font-extrabold text-white p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer",
+              "flex items-center font-extrabold text-2xl dark:text-white p-3 rounded-lg  transition cursor-pointer",
               isExpanded ? "justify-start space-x-4" : "justify-center"
             )}
           >
@@ -203,16 +215,22 @@ export const Header = () => {
             <Link
               href={route.href}
               key={route.href}
-              className={`flex items-center p-3 rounded-lg hover:bg-gray-700 transition ${
-                isExpanded ? "justify-start space-x-4" : "justify-center"
-              }`}
+              // className={`flex items-center p-3 rounded-lg hover:bg-gray-300 transition ${
+              //   isExpanded ? "justify-start space-x-4" : "justify-center"
+              // }`}
+              className={cn(
+                "flex items-center p-3 rounded-lg transition",
+                isExpanded ? "justify-start space-x-4" : "justify-center",
+                pathname === route.href
+                  ? "bg--500  hover:bg-gray-300 dark:bg-gray-700" // Estilo para item ativo
+                  : "hover:bg-gray-300 dark:hover:bg-gray-700" // Estilo para item inativo no hover
+              )}
             >
               {route.icon}
               {isExpanded && <span className="text-sm">{route.label}</span>}
             </Link>
           ))}
         </div>
-
         {isLoggedIn && (
           <div
             className={`flex items-center p-4 border-t border-gray-700 ${
@@ -225,8 +243,12 @@ export const Header = () => {
               picture={image}
             />
             {isExpanded && (
-              <div className="ml-3">
+              <div className="ml-3 flex ">
                 <p className="text-sm font-medium">{googleName}</p>
+                <div className="ml-20 w-fit">
+                  {" "}
+                  <ModeToggle />{" "}
+                </div>
               </div>
             )}
           </div>

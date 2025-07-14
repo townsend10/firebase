@@ -45,7 +45,6 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     await deleteDoc(doc(db, "pacient", id));
     await deleteDoc(doc(db, "schedule", docSchedule.id));
 
-    console.log("ID DO PACIENT", id);
     return { data: pacients };
   } catch (error) {
     console.error("Erro ao deletar os pacientes ão de pacientes:", error);

@@ -6,8 +6,8 @@ export const HomePrivate = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-center min-h-screen items-center  bg-gray-100 p-4">
-      <div className=" text-center bg-white rounded-xl shadow-lg p-10 border border-gray-200">
+    <div className="flex flex-col justify-center min-h-screen items-center  p-4">
+      <div className=" text-center  rounded-xl shadow-lg p-10 border border-gray-200">
         <h1 className="text-5xl font-extrabold text-blue-600 mb-4">
           🏥 Clínica Saúde+
         </h1>

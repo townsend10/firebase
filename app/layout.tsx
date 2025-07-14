@@ -1,11 +1,13 @@
+import { HeaderMobile } from "@/components/heade-mobile";
+import { AuthProvider } from "@/components/provider/auth-context";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import { Toaster } from "sonner";
-import { InitalPage } from "@/components/inital-page";
+import "./globals.css";
 import { Header } from "@/components/header";
-import { AuthProvider } from "@/components/provider/auth-context";
-import { HeaderMobile } from "@/components/heade-mobile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,18 +24,29 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <Toaster />
-          <div className="flex ">
-            <div className="sm:hidden">
-              <HeaderMobile />
-            </div>
-            <div className="hidden p-0 sm:block">
-              <Header />
-            </div>
-            <div className="flex-grow flex flex-col ">{children}</div>
-          </div>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <main className="flex ">
+                <SidebarTrigger />
+
+                <Toaster />
+                <div className="flex ">
+                  <div className="sm:hidden">
+                    <HeaderMobile />
+                  </div>
+                  <div className="hidden p-0 sm:block">
+                    {/* <Header /> */}
+                    {/* <AppSidebar /> */}
+                  </div>
+                  {/* <div className="flex-grow flex flex-col ">{children}</div> */}
+                  {children}
+                </div>
+              </main>
+            </SidebarProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

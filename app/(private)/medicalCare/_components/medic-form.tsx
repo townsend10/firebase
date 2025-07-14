@@ -86,12 +86,12 @@ export const MedicForm = () => {
     //     </div>
     //   </form>
     // </div>
-    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
+    <div className="flex flex-grow justify-center items-center min-h-screen p-4">
       <form
         action={onSubmit}
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
+        className=" shadow-lg rounded-2xl p-6 w-full max-w-md"
       >
-        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+        <h2 className="text-2xl font-semibold text-center mb-6 dark:text-white">
           Cadastrar Paciente
         </h2>
         <div className="space-y-4">
