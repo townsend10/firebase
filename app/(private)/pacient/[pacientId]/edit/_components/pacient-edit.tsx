@@ -1,6 +1,6 @@
 "use client";
 
-import { getPacient } from "@/actions/get-pacient.tsx";
+import { getPacient } from "@/actions/get-pacient";
 import { updatePacient } from "@/actions/update-pacient";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
+      router.push("/");
     },
   });
   const { execute: UpdatePacient } = useAction(updatePacient, {
@@ -35,7 +35,7 @@ export const PacientEdit = ({ pacient }: InfoPacientProps) => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
+      router.push("/");
     },
   });
 

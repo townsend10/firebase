@@ -1,10 +1,10 @@
 import { ChatGpt } from "./_components/chat-gpt";
-import { SnakeGame } from "./_components/snake-game";
+import { RegisterPage } from "./_components/snake-game";
 
 const GamePage = () => {
   return (
-    <div>
-      <SnakeGame />
+    <div className="flex w-full">
+      <RegisterPage />
       {/* <ChatGpt /> */}
     </div>
   );

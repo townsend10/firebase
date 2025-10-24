@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "test/.test.ts"
-  ],
+    "__tests__/.test.ts"
+, "__tests__/AppSidebar.test.jsx", "actions/get-pacient", "actions/get-pacient"  ],
   "exclude": ["node_modules"]
 }

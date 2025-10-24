@@ -1,6 +1,6 @@
 "use client";
 
-import { getPacient } from "@/actions/get-pacient.tsx";
+import { getPacient } from "@/actions/get-pacient";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";

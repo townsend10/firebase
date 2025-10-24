@@ -7,7 +7,7 @@ export const CreatPacientMedic = z.object({
       invalid_type_error: "Nome obrigatoria",
     })
     .min(2, {
-      message: "BOTA NOME PORRA",
+      message: "Digite seu nome e sobrenome",
     }),
   email: z
     .string({
@@ -29,8 +29,12 @@ export const CreatPacientMedic = z.object({
       message: "CPF GRANDE",
     }),
 
-  phone: z.string({
-    required_error: "Telefone obrigatoria",
-    invalid_type_error: "Telefone obrigatoria",
-  }),
+  phone: z
+    .string({
+      required_error: "Telefone obrigatoria",
+      invalid_type_error: "Telefone obrigatoria",
+    })
+    .max(4, {
+      message: "CPF GRANDE",
+    }),
 });

@@ -25,15 +25,77 @@ import {
   MedalIcon,
   Search,
   Settings,
+  SyringeIcon,
   User2,
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { NavUser } from "./nav-user";
+import { UserProfile } from "../user-profile";
+import { getAuth, signOut } from "firebase/auth";
+import { toast } from "sonner";
+import { useAction } from "@/hooks/use-action";
+import { getCurrentUser } from "@/actions/get-user";
 
 export function AppSidebar() {
   const { isLoggedIn, user } = useAuth();
+  const [phone, setPhone] = useState("");
+  const [googleName, setGoogleName] = useState<string | null | undefined>("");
+  const [googlePhone, setGooglePhone] = useState<string | null | undefined>("");
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const [image, setImage] = useState("");
+  const [googleImage, setGoogleImage] = useState<string | null | undefined>("");
+  const [name, setName] = useState("");
+  const [id, setId] = useState("");
+  const [isSelected, setIsSelected] = useState(false);
+
+  const auth = getAuth();
+  const userId = auth.currentUser;
+
+  const { data, execute: getUser } = useAction(getCurrentUser, {
+    onSuccess: (data: any) => {
+      // toast.success(`ola ${data.name}`);
+
+      setName(data.name);
+      setGoogleName(auth.currentUser?.displayName);
+
+      setPhone(data.phone);
+      setGooglePhone(auth.currentUser?.phoneNumber);
+      setImage(data.imageUrl);
+      setGoogleImage(auth.currentUser?.photoURL);
+    },
+    onError: (error) => {
+      // toast.error(error);
+    },
+  });
+
+  // if (!userId) {
+  //   return null;
+  // }
+
+  useEffect(() => {
+    getUser({
+      // id: `${paramas.userId}`,
+      // id: userId?.uid as string,
+      id: auth.currentUser?.uid as string,
+
+      name: "",
+      phone: "",
+    });
+  }, [userId, auth.currentUser?.uid, getUser]);
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      const [image, setImage] = useState("");
+
+      toast.success("Usuário deslogado com sucesso");
+    } catch (error) {
+      console.error("Erro ao deslogar:", error);
+    }
+  };
 
   const items = [
     {
@@ -62,6 +124,7 @@ export function AppSidebar() {
       icon: Settings,
     },
   ];
+
   const router = isLoggedIn
     ? [
         {
@@ -105,6 +168,16 @@ export function AppSidebar() {
           label: "Lista de Pacientes",
           icon: <ListIcon className="h-4 w-4" />,
         },
+        {
+          href: "/medicalPrescription",
+          label: "Criar atestado",
+          icon: <SyringeIcon className="h-4 w-4" />,
+        },
+        {
+          href: "/pacientPrescription",
+          label: "Atestados",
+          icon: <SyringeIcon className="h-4 w-4" />,
+        },
       ]
     : [
         {
@@ -119,12 +192,42 @@ export function AppSidebar() {
         },
       ];
 
+  //    <Sidebar collapsible="offcanvas" {...props}>
+  //   <SidebarHeader>
+  //     <SidebarMenu>
+  //       <SidebarMenuItem>
+  //         <SidebarMenuButton
+  //           asChild
+  //           className="data-[slot=sidebar-menu-button]:!p-1.5"
+  //         >
+  //           <a href="#">
+  //             <IconInnerShadowTop className="!size-5" />
+  //             <span className="text-base font-semibold">
+  //               Clinic msdsdaedics
+  //             </span>
+  //           </a>
+  //         </SidebarMenuButton>
+  //       </SidebarMenuItem>
+  //     </SidebarMenu>
+  //   </SidebarHeader>
+  //   <SidebarContent>
+  //     <NavMain items={data.navMain} />
+  //     {/* <NavDocuments items={data.documents} /> */}
+  //     {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+  //   </SidebarContent>
+  //   <SidebarFooter>
+  //     <NavUser user={data.user} />
+  //   </SidebarFooter>
+  // </Sidebar>
+
   return (
     <Sidebar className="" variant="sidebar">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>MEDIC FORM</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupLabel className="text-2xl font-bold">
+            Clinica medica
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="mt-5 ">
             <SidebarMenu>
               {router.map((item) => (
                 <SidebarMenuItem key={item.href}>
@@ -149,188 +252,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        {/* <NavUser user={data.user} /> */}
+        <UserProfile firstName={googleName} logout={logout} picture={image} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
-
-// "use client";
-
-// import * as React from "react";
-// import {
-//   IconCamera,
-//   IconChartBar,
-//   IconDashboard,
-//   IconDatabase,
-//   IconFileAi,
-//   IconFileDescription,
-//   IconFileWord,
-//   IconFolder,
-//   IconHelp,
-//   IconInnerShadowTop,
-//   IconListDetails,
-//   IconReport,
-//   IconSearch,
-//   IconSettings,
-//   IconUsers,
-// } from "@tabler/icons-react";
-
-// import {
-//   Sidebar,
-//   SidebarContent,
-//   SidebarFooter,
-//   SidebarHeader,
-//   SidebarMenu,
-//   SidebarMenuButton,
-//   SidebarMenuItem,
-// } from "@/components/ui/sidebar";
-// import { NavMain } from "./nav-main";
-// import { NavSecondary } from "./nav-secondary";
-// import { NavUser } from "./nav-user";
-// import { NavDocuments } from "./nav-documents";
-
-// const data = {
-//   user: {
-//     name: "shadcn",
-//     email: "m@example.com",
-//     avatar: "/avatars/shadcn.jpg",
-//   },
-//   navMain: [
-//     {
-//       title: "Dashboard",
-//       url: "#",
-//       icon: IconDashboard,
-//     },
-//     {
-//       title: "Lifecycle",
-//       url: "#",
-//       icon: IconListDetails,
-//     },
-//     {
-//       title: "Analytics",
-//       url: "#",
-//       icon: IconChartBar,
-//     },
-//     {
-//       title: "Projects",
-//       url: "#",
-//       icon: IconFolder,
-//     },
-//     {
-//       title: "Team",
-//       url: "#",
-//       icon: IconUsers,
-//     },
-//   ],
-//   navClouds: [
-//     {
-//       title: "Capture",
-//       icon: IconCamera,
-//       isActive: true,
-//       url: "#",
-//       items: [
-//         {
-//           title: "Active Proposals",
-//           url: "#",
-//         },
-//         {
-//           title: "Archived",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Proposal",
-//       icon: IconFileDescription,
-//       url: "#",
-//       items: [
-//         {
-//           title: "Active Proposals",
-//           url: "#",
-//         },
-//         {
-//           title: "Archived",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Prompts",
-//       icon: IconFileAi,
-//       url: "#",
-//       items: [
-//         {
-//           title: "Active Proposals",
-//           url: "#",
-//         },
-//         {
-//           title: "Archived",
-//           url: "#",
-//         },
-//       ],
-//     },
-//   ],
-//   navSecondary: [
-//     {
-//       title: "Settings",
-//       url: "#",
-//       icon: IconSettings,
-//     },
-//     {
-//       title: "Get Help",
-//       url: "#",
-//       icon: IconHelp,
-//     },
-//     {
-//       title: "Search",
-//       url: "#",
-//       icon: IconSearch,
-//     },
-//   ],
-//   documents: [
-//     {
-//       name: "Data Library",
-//       url: "#",
-//       icon: IconDatabase,
-//     },
-//     {
-//       name: "Reports",
-//       url: "#",
-//       icon: IconReport,
-//     },
-//     {
-//       name: "Word Assistant",
-//       url: "#",
-//       icon: IconFileWord,
-//     },
-//   ],
-// };
-
-// export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-//   return (
-//     <Sidebar collapsible="offcanvas" {...props}>
-//       <SidebarHeader>
-//         <SidebarMenu>
-//           <SidebarMenuItem>
-//             <SidebarMenuButton
-//               asChild
-//               className="data-[slot=sidebar-menu-button]:!p-1.5"
-//             >
-//               <a href="#">
-//                 <IconInnerShadowTop className="!size-5" />
-//                 <span className="text-base font-semibold">Acme Inc.</span>
-//               </a>
-//             </SidebarMenuButton>
-//           </SidebarMenuItem>
-//         </SidebarMenu>
-//       </SidebarHeader>
-//       <SidebarContent>
-//         {/* <NavMain items={data.navMain} />
-//         <NavDocuments items={data.documents} />
-//         <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
-//       </SidebarContent>
-//       <SidebarFooter>
-//         <NavUser user={data.user} />
-//       </SidebarFooter>
-//     </Sidebar>
-//   );
-// }

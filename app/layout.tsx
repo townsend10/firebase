@@ -6,8 +6,10 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+// import "./globals.css";
 import "./globals.css";
 import { Header } from "@/components/header";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,25 +28,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <main className="flex ">
-                <SidebarTrigger />
-
-                <Toaster />
-                <div className="flex ">
-                  <div className="sm:hidden">
-                    <HeaderMobile />
-                  </div>
-                  <div className="hidden p-0 sm:block">
-                    {/* <Header /> */}
-                    {/* <AppSidebar /> */}
-                  </div>
-                  {/* <div className="flex-grow flex flex-col ">{children}</div> */}
-                  {children}
-                </div>
-              </main>
-            </SidebarProvider>
+            <main className="flex flex-grow  min-h-screen">
+              <Toaster />
+              <div className="flex "></div>
+              <div className="flex flex-grow">{children}</div>
+              <ModeToggle />
+            </main>
           </AuthProvider>
         </ThemeProvider>
       </body>

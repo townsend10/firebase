@@ -1,5 +1,6 @@
 "use client";
-import { getPacient } from "@/actions/get-pacient.tsx";
+
+import { getPacient } from "@/actions/get-pacient";
 import { getPacients } from "@/actions/get-pacients";
 import { getSchedules } from "@/actions/get-schedules";
 import { useAction } from "@/hooks/use-action";
@@ -23,21 +24,21 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
   } = useAction(getSchedules, {
     onSuccess: () => {},
     onError: (error) => {
-      router.push("/login");
+      router.push("/");
     },
   });
 
   const { data: pacients, execute: getPacientsData } = useAction(getPacients, {
     onSuccess: () => {},
     onError: (error) => {
-      router.push("/login");
+      router.push("/");
     },
   });
 
   const { data: pacient, execute: getPaciensData } = useAction(getPacient, {
     onSuccess: () => {},
     onError: (error) => {
-      router.push("/login");
+      router.push("/");
     },
   });
 

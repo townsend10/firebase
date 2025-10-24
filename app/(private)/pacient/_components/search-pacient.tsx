@@ -1,10 +1,8 @@
 "use client";
-import { getPacient } from "@/actions/get-pacient.tsx";
 import { getPacients } from "@/actions/get-pacients";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAction } from "@/hooks/use-action";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export const SearchPacient = () => {

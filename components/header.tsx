@@ -245,10 +245,7 @@ export const Header = () => {
             {isExpanded && (
               <div className="ml-3 flex ">
                 <p className="text-sm font-medium">{googleName}</p>
-                <div className="ml-20 w-fit">
-                  {" "}
-                  <ModeToggle />{" "}
-                </div>
+                <div className="ml-20 w-fit"> </div>
               </div>
             )}
           </div>

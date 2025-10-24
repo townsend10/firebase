@@ -1,7 +1,10 @@
+"use client";
 import React, { forwardRef, useState } from "react";
 import { Input } from "./ui/input";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
+import { FormErrors } from "./form/form-errors";
+import { Label } from "./ui/label";
 
 interface PhoneInputProps {
   id: string;
@@ -14,15 +17,22 @@ interface PhoneInputProps {
   className?: string;
   defaultValue?: string;
   onBlur?: () => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+
+  min?: string | number | undefined;
+  max?: string | number | undefined;
 }
 
 export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
   (
     {
       id,
+      onChange,
       defaultValue,
       disabled,
       label,
+      max,
+      min,
       onBlur,
       required,
       type,
@@ -60,21 +70,60 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     return (
-      <Input
-        onBlur={onBlur}
-        defaultValue={defaultValue}
-        ref={ref}
-        required={required}
-        name={id}
-        id={id}
-        value={phoneNumber}
-        onChange={handlePhoneChange}
-        placeholder={placeholder}
-        type={type}
-        disabled={pending || disabled}
-        className={cn("text-sm px-2 py-1 h-7", className)}
-        aria-describedby={`${id}-error`}
-      />
+      // <div>
+      //   <Input
+      //     onBlur={onBlur}
+      //     defaultValue={defaultValue}
+      //     ref={ref}
+      //     required={required}
+      //     name={id}
+      //     id={id}
+      //     value={phoneNumber}
+      //     onChange={handlePhoneChange}
+      //     placeholder={placeholder}
+      //     type={type}
+      //     disabled={pending || disabled}
+      //     className={cn("text-sm px-2 py-1 h-7", className)}
+      //     aria-describedby={`${id}-error`}
+      //     min={min}
+      //     max={max}
+      //   />
+
+      //   <div>
+      //     <FormErrors id={id} errors={errors} />
+      //   </div>
+      // </div>
+
+      <div className="space-y-2">
+        <div className="space-y-1">
+          {label ? (
+            <Label
+              htmlFor={id}
+              className="text-xs font-semibold text-neutral-700"
+            >
+              {label}
+            </Label>
+          ) : null}
+          <Input
+            min={min}
+            value={phoneNumber}
+            max={max}
+            onBlur={onBlur}
+            defaultValue={defaultValue}
+            ref={ref}
+            required={required}
+            name={id}
+            id={id}
+            placeholder={placeholder}
+            type={type}
+            disabled={pending || disabled}
+            className={cn("text-sm px-2 py-1 h-7", className)}
+            aria-describedby={`${id}-error`}
+            onChange={handlePhoneChange}
+          />
+        </div>
+        <FormErrors id={id} errors={errors} />
+      </div>
     );
   }
 );

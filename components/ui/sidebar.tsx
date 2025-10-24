@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, PanelLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -273,7 +273,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { open, toggleSidebar } = useSidebar();
 
   return (
     <Button
@@ -288,7 +288,12 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft />
+           {" "}
+      {open ? (
+        <ArrowLeftIcon className="size-4" />
+      ) : (
+        <ArrowRightIcon className="size-4" />
+      )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export const InitalPage = () => {
@@ -87,7 +88,9 @@ export const InitalPage = () => {
     //     </button>
     //   </div>
     // </div>
-
-    <div>teste</div>
+    <div>
+      <h1>Home</h1>
+      <Link href="/register">Register</Link>
+    </div>
   );
 };

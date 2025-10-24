@@ -24,18 +24,16 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
     },
   });
 
   const { execute: deleteAll } = useAction(deletePatients, {
-    onComplete: () => {
+    onComplete: async () => {
       toast.success(`sucesso ao deletar o paciente `);
-      router.refresh();
+      await router.refresh();
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
     },
   });
 
@@ -118,6 +116,7 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
       {/* {schedules?.map((schedule: any) => (
         <div key={schedule.id}>{schedule.pacientId}</div>
       ))} */}
+
       {data?.map((pacient) => {
         const dateToBr = pacient.birthdayDate;
         const formtData = new Date(dateToBr);

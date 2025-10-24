@@ -32,7 +32,7 @@ export const ScheduleEdit = () => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
+      router.push("/");
     },
   });
   const {

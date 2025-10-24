@@ -13,6 +13,12 @@ export type User = {
   phone: string;
 };
 
+export type Prescription = {
+  name: string;
+  date: Date;
+  content?: string;
+  days: number;
+};
 export type Schedule = {
   id?: string;
   pacientId: string;

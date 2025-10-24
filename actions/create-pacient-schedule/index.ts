@@ -108,7 +108,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   try {
     const docRef = await addDoc(
-      collection(db, `paciente/${pacientId}/schedule`),
+      collection(db, `pacient/${pacientId}/schedule`),
       {}
     );
 

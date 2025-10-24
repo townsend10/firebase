@@ -1,5 +1,5 @@
 "use client";
-import { getPacient } from "@/actions/get-pacient.tsx";
+
 import { getPacients } from "@/actions/get-pacients";
 import { Input } from "@/components/ui/input";
 import { useAction } from "@/hooks/use-action";
@@ -7,6 +7,9 @@ import { Pacient } from "@/types";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PacientTable } from "./pacient-table";
+import { columns } from "./columns";
+import { getPacient } from "@/actions/get-pacient";
 interface ListPacientProps {
   pacient: Pacient;
 }
@@ -20,7 +23,6 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
     },
   });
 
@@ -30,7 +32,6 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     },
     onError: (error) => {
       toast.error(error);
-      router.push("/login");
     },
   });
 
@@ -99,49 +100,61 @@ export const ListPacient = ({ pacient }: ListPacientProps) => {
     //     </div>
     //   </div>
     // </div>
-    <div className="flex flex-col min-h-screen  ">
-      <h1 className="mt-10 ml-5 text-5xl  font-bold">Chamar paciente</h1>
+    // <div className="flex flex-col min-h-screen  ">
+    //   <h1 className="mt-10 ml-5 text-5xl  font-bold">Chamar paciente</h1>
 
-      <div className="flex items-center justify-center">
-        <Input
-          id="patientNameInput"
-          type="text"
-          value={name}
-          onChange={handleInputChange}
-          placeholder="Nome do paciente"
-          className="max-w-lg  px-3 py-2 border mt-10 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" // Input styling
-        />
-      </div>
-      <div className="flex  items-center justify-center  text-5xl mt-[300px] ">
-        {/* <p>Paciente: {name}</p> */}
+    //   <div className="flex items-center justify-center">
+    //     <Input
+    //       id="patientNameInput"
+    //       type="text"
+    //       value={name}
+    //       onChange={handleInputChange}
+    //       placeholder="Nome do paciente"
+    //       className="max-w-lg  px-3 py-2 border mt-10 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" // Input styling
+    //     />
+    //   </div>
+    //   <div className="flex  items-center justify-center  text-5xl mt-[300px] ">
+    //     {/* <p>Paciente: {name}</p> */}
 
-        <div>
-          {hasTyped && (
-            <div>
-              {filteredPacients && filteredPacients.length > 0 ? (
-                filteredPacients.map((pacient) => {
-                  return (
-                    <div
-                      className="ml-5 mb-4 p-4 border rounded-lg shadow-sm bg-white"
-                      key={pacient.id}
-                    >
-                      <h2 className="text-center text-5xl text-gray-500   ">
-                        Nome : {pacient.name}{" "}
-                      </h2>
+    //     <div>
+    //       {hasTyped && (
+    //         <div>
+    //           {filteredPacients && filteredPacients.length > 0 ? (
+    //             filteredPacients.map((pacient) => {
+    //               return (
+    //                 <div
+    //                   className="ml-5 mb-4 p-4 border rounded-lg shadow-sm bg-white"
+    //                   key={pacient.id}
+    //                 >
+    //                   <h2 className="text-center text-5xl text-gray-500   ">
+    //                     Nome : {pacient.name}{" "}
+    //                   </h2>
 
-                      {/* Action Buttons */}
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-center text-gray-500 mt-8 text-5xl">
-                  Nenhum paciente encontrado.
-                </p>
-              )}
-            </div>
-          )}
+    //                   {/* Action Buttons */}
+    //                 </div>
+    //               );
+    //             })
+    //           ) : (
+    //             <p className="text-center text-gray-500 mt-8 text-5xl">
+    //               Nenhum paciente encontrado.
+    //             </p>
+    //           )}
+    //         </div>
+    //       )}
+    //     </div>
+    //   </div>
+    // </div>
+    <div>
+      {data && data.length > 0 ? (
+        <div className="max-w-7xl mx-auto flex">
+          <PacientTable data={data as Pacient[]} columns={columns} />
         </div>
-      </div>
+      ) : (
+        <div className="text-center py-10 text-gray-600 bg-white rounded-md shadow-lg">
+          No patients available. Add some data to your Firebase 'pacients'
+          collection!
+        </div>
+      )}
     </div>
   );
 };

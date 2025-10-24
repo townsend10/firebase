@@ -57,3 +57,85 @@ babel
 // // // Outros plugins personalizados podem ser adicionados aqui
 // // ],
 // };
+
+
+
+
+Componentes Principais:
+App.jsx (Container Principal):
+
+Será o ponto de entrada da aplicação.
+
+Gerenciará o estado central do carrinho (cartItems), que será um array de objetos de produto (ex: { id, nome, preco, quantidade }).
+
+Fornecerá as funções para manipular o carrinho (adicionarAoCarrinho, atualizarQuantidade, removerDoCarrinho) através de um CartContext.Provider.
+
+Renderizará condicionalmente as telas (ProductGrid, ProductDetail, CartPage).
+
+Header.jsx:
+
+Contém a navegação principal (para a lista de produtos, por exemplo).
+
+Incluirá o componente MiniCart (um ícone ou resumo do carrinho).
+
+MiniCart.jsx:
+
+Consumirá o CartContext para exibir o número de itens no carrinho ou um pequeno resumo.
+
+Ao clicar, pode exibir um modal ou um dropdown com os itens do carrinho, permitindo visualização e modificação rápida de quantidades e remoção de produtos diretamente na tela atual. Isso será feito passando as funções de atualizarQuantidade e removerDoCarrinho via Context.
+
+ProductGrid.jsx (Tela Inicial):
+
+Exibirá uma grade de produtos (ProductCard). Os dados dos produtos podem ser um array JSON mockado localmente no frontend, já que não haverá um backend para a listagem inicial.
+
+Cada ProductCard terá um botão "Ver Detalhes" (ou "Acessar Produto") que navegará para a tela ProductDetail para o produto selecionado.
+
+ProductCard.jsx:
+
+Componente individual que exibe a imagem, nome e preço de um produto.
+
+Botão "Ver Detalhes" que aciona a navegação para o ProductDetail com o id do produto.
+
+ProductDetail.jsx:
+
+Carrega o produto atráves de um id.
+
+Exibe os detalhes completos do produto.
+
+Possui um campo de entrada para a quantidade e um botão "Adicionar ao Carrinho".
+
+Ao adicionar ao carrinho, a lógica verificará se o produto já existe:
+
+Se sim, somará a nova quantidade à existente.
+
+Se não, adicionará o produto como um novo item no carrinho.
+
+CartPage.jsx (Tela do Carrinho):
+
+Consumirá o CartContext para exibir a lista completa de cartItems.
+
+Renderizará um componente CartItem para cada produto no carrinho.
+
+Cada CartItem permitirá modificar as quantidades (input numérico) e remover o produto.
+
+Contém um formulário para os dados básicos do usuário (Nome, E-mail, Telefone), que será validado.
+
+Um botão "Finalizar Cotação" que acionará o envio dos dados.
+
+CartItem.jsx:
+
+Exibe os detalhes de um item no carrinho (nome, quantidade, subtotal).
+Botoes para adicionar ou diminuir uma quantidade de produto (ex: +, - ) 
+
+Botão "Remover".
+
+As principais tecnologias seria:
+
+React 
+React-hook-form (validaçao de dados do usuario)
+Zod(validaçao de dados junto do react-hook-form)
+Tailwind CSS 
+
+Obs: Também poderia ser feito utilizando nextjs, junto de uma interface ui como shadcn, facilitando um pouco na construçao da interface com componentes ja prontos, também seria utiliado as mesma ferramentas descritas acima.
+
+
