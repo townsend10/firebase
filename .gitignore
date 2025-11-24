@@ -9,6 +9,7 @@
 # testing
 /coverage
 /__tests__
+/service-account.json
 
 # next.js
 /.next/

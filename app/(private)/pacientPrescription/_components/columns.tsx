@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 // You can use a Zod schema here if you want.
 export type PacientType = {
   name: string;
-  phone: string;
   id: string;
 };
 
@@ -26,29 +25,6 @@ const onEditinPacient = (id: string) => {
 };
 
 export const columns: ColumnDef<PacientType>[] = [
-  // {
-  //   id: "id",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -70,12 +46,14 @@ export const columns: ColumnDef<PacientType>[] = [
     header: "Editar",
     cell: ({ row }) => {
       const router = useRouter();
-      const pacinetId = row.getValue("id");
+      const prescriptionId = row.getValue("id");
 
       return (
         <Button
           variant={"ghost"}
-          onClick={() => router.push(`/pacient/${pacinetId}/edit`)}
+          onClick={() =>
+            router.push(`/pacientPrescription/${prescriptionId}/edit`)
+          }
         >
           <PencilIcon />
         </Button>
@@ -84,15 +62,15 @@ export const columns: ColumnDef<PacientType>[] = [
   },
   {
     accessorKey: "id",
-    header: "Agendar",
+    header: "Atestado",
     cell: ({ row }) => {
       const router = useRouter();
-      const pacinetId = row.getValue("id");
+      const prescriptionId = row.getValue("id");
 
       return (
         <Button
           variant={"ghost"}
-          onClick={() => router.push(`/pacient/${pacinetId}/schedule`)}
+          onClick={() => router.push(`/pacientPrescription/${prescriptionId}`)}
         >
           <NotebookIcon />
         </Button>

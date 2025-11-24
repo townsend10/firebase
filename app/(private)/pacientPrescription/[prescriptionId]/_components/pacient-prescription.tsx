@@ -8,8 +8,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 interface PacientPrescriptionProps {
   content: string;
+  date: Date;
+  days: number;
 }
-export const PacientPrescription = ({ content }: PacientPrescriptionProps) => {
+export const PacientPrescription = ({
+  content,
+  date,
+  days,
+}: PacientPrescriptionProps) => {
   const params = useParams();
 
   const prescriptionid = params.prescriptionId as string;
@@ -27,7 +33,7 @@ export const PacientPrescription = ({ content }: PacientPrescriptionProps) => {
   });
 
   useEffect(() => {
-    execute({ content, id: prescriptionid });
+    execute({ content, id: prescriptionid, date, days, name });
   }, [content]);
 
   const printElementById = (elementId: string, title: string) => {

@@ -38,11 +38,13 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     const docSnap = await getDoc(prescriptionRef);
 
     if (docSnap.exists()) {
-      const { id, content, name } = docSnap.data();
+      const { id, content, name, days,date } = docSnap.data();
       data = {
         id,
         content,
         name,
+date,
+        days,
       };
     } else {
       console.log("No such document!");

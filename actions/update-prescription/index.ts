@@ -25,13 +25,16 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  const { content, id } = data;
+  const { content, id, name, date, days } = data;
   let prescription = data || undefined;
   try {
     const prescriptionRef = doc(db, "prescriptions", id);
     await updateDoc(prescriptionRef, {
       content,
       id,
+      name,
+      date,
+      days,
     });
 
     return { data: prescription };

@@ -1,43 +1,65 @@
 "use client";
 
-import { createMedicalPrescription } from "@/actions/create-medical-prescription";
-import { createPacientMedic } from "@/actions/create-pacient-medic";
-import { CpfInput } from "@/components/cpf-input";
+import { getPrescription } from "@/actions/get-prescription";
+import { updatePrescription } from "@/actions/update-prescription";
 import { FormInput } from "@/components/form/form-input";
-import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
-import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useAuth } from "@/hooks/use-current-user";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-export const PrescriptionForm = () => {
+interface PrescriptionEditProps {
+  content: string;
+  name: string;
+  days: number;
+  date: Date;
+}
+
+export const PrescriptionEdit = ({
+  content,
+  name,
+  date,
+  days,
+}: PrescriptionEditProps) => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const { execute, fieldErrors } = useAction(createMedicalPrescription, {
+  const { isLoggedIn } = useAuth();
+  const {
+    data,
+    execute: loadPrescription,
+    fieldErrors,
+  } = useAction(getPrescription, {
     onSuccess: (data) => {
-      toast.success(`paciente foi  ${data.name} criado com sucesso`);
+      toast.success(`${data.name} bem vindo   `);
     },
     onError: (error) => {
       toast.error(error);
+      router.push("/");
+    },
+  });
+  const { execute: UpdatePrescription } = useAction(updatePrescription, {
+    onSuccess: async (data) => {
+      await toast.success(`SUCESSO AO ATUALIZAR `);
+      await router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error);
+      router.push("/");
     },
   });
 
-  // const onSubmit = (formData: FormData) => {
-  //   const name = formData.get("name") as string;
-  //   const date = formData.get("date") as any;
-  //   const daysString = formData.get("days") as string;
+  const params = useParams();
 
-  //   const days = +daysString;
-
-  //   execute({ date, name, days });
-  // };
   const onSubmit = (formData: FormData) => {
     const name = formData.get("name") as string;
     const dateString = formData.get("date") as string; // Ex: "2025-10-24"
     const daysString = formData.get("days") as string;
     const days = +daysString;
+    const id = params.prescriptionId as string;
+
     const now = new Date();
     let date: Date;
 
@@ -54,11 +76,30 @@ export const PrescriptionForm = () => {
       date = now; // Fallback
     }
 
-    execute({ date, name, days });
-    if (formRef.current) {
-      formRef.current.reset();
-    }
+    UpdatePrescription({ date, name, days, content, id });
   };
+
+  useEffect(() => {
+    loadPrescription({
+      id: `${params.prescriptionId}`,
+      content,
+      name,
+      date,
+      days,
+    });
+  }, [loadPrescription, name, content, days]);
+  const getISODate = (timestamp: any) => {
+    if (!timestamp || typeof timestamp.toDate !== "function") return "";
+
+    // Converte para Date e pega apenas YYYY-MM-DD
+    return timestamp.toDate().toISOString().slice(0, 10);
+  };
+
+  const dataISO = getISODate(data?.date);
+
+  if (!isLoggedIn) {
+    return null;
+  }
   return (
     <div className="flex flex-col flex-grow justify-center items-center min-h-screen p-4 ">
       <form
@@ -76,6 +117,7 @@ export const PrescriptionForm = () => {
               type="text"
               className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg"
               placeholder="Nome Completo"
+              defaultValue={data?.name}
               errors={fieldErrors}
               required
             />
@@ -85,6 +127,8 @@ export const PrescriptionForm = () => {
               className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg"
               placeholder="Data de Nascimento"
               required
+              //   defaultValue={data?.date?.toDate().toLocaleDateString("pt-BR")}
+              defaultValue={dataISO}
               errors={fieldErrors}
             />
 
@@ -95,6 +139,7 @@ export const PrescriptionForm = () => {
               placeholder="Dias de atestado"
               errors={fieldErrors}
               max={30}
+              defaultValue={data?.days}
               required
             />
           </div>
@@ -105,11 +150,10 @@ export const PrescriptionForm = () => {
             variant="default"
             className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300 ease-in-out text-xl"
           >
-            Cadastrar
+            Atualizar
           </Button>
         </div>
       </form>
-      
     </div>
   );
 };
