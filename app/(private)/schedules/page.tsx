@@ -3,6 +3,10 @@ import { Pacient } from "@/types";
 import { useRouter } from "next/navigation";
 import { ScheduleList } from "./schedule-list";
 
+// Force dynamic rendering for real-time schedule data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const SchedulePage = () => {
   const router = useRouter();
 

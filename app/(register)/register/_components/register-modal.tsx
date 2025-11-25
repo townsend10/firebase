@@ -135,75 +135,125 @@ export const RegisterModal = () => {
     //     </div>
     //   </form>
     // </div>
-    <div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4">
-      <form
-        ref={formRef}
-        action={onSubmit}
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
-          Cadastro
-        </h2>
-        <div className="space-y-4">
-          <FormInput
-            id="email"
-            type="email"
-            className="w-full"
-            placeholder="Digite email"
-            errors={EmailErrors}
-          />
-          <FormInput
-            type="password"
-            id="password"
-            className="w-full"
-            placeholder="Digite sua senha"
-            errors={EmailErrors}
-          />
-          <FormInput
-            id="name"
-            className="w-full"
-            placeholder="Nome"
-            errors={EmailErrors}
-          />
-          <PhoneInput
-            id="phone"
-            type="tel"
-            className="w-full"
-            placeholder="Telefone"
-            errors={EmailErrors}
-          />
-          <FormInput
-            id="imageFile"
-            type="file"
-            className="w-full"
-            placeholder="Imagem"
-            errors={EmailErrors}
-            onChange={handleFileChange}
-          />
-          <div className="flex items-center justify-center">
-            <Image
-              src={image}
-              alt="Perfil"
-              width={200}
-              height={200}
-              className="rounded-full"
-            />
+    <div
+      className="flex flex-col items-center justify-center min-h-screen w-full bg-cover bg-center bg-no-repeat p-4 relative"
+      style={{ backgroundImage: "url('/ophthalmology-bg.png')" }}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="w-full max-w-lg bg-card text-card-foreground shadow-2xl rounded-xl border border-border overflow-hidden relative z-10">
+        <div className="p-10">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold tracking-tight">
+              Crie sua conta
+            </h2>
+            <p className="text-base text-muted-foreground mt-3">
+              Preencha seus dados para começar
+            </p>
           </div>
+
+          <form ref={formRef} action={onSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <FormInput
+                  id="email"
+                  type="email"
+                  className="bg-background h-12 text-lg"
+                  placeholder="Seu melhor email"
+                  errors={EmailErrors}
+                />
+              </div>
+              <div className="space-y-2">
+                <FormInput
+                  type="password"
+                  id="password"
+                  className="bg-background h-12 text-lg"
+                  placeholder="Crie uma senha segura"
+                  errors={EmailErrors}
+                />
+              </div>
+              <div className="space-y-2">
+                <FormInput
+                  id="name"
+                  className="bg-background h-12 text-lg"
+                  placeholder="Seu nome completo"
+                  errors={EmailErrors}
+                />
+              </div>
+              <div className="space-y-2">
+                <PhoneInput
+                  id="phone"
+                  type="tel"
+                  className="bg-background h-12 text-lg"
+                  placeholder="Seu telefone"
+                  errors={EmailErrors}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <FormInput
+                      id="imageFile"
+                      type="file"
+                      className="bg-background pt-2"
+                      placeholder="Sua foto"
+                      errors={EmailErrors}
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                  {image && (
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary">
+                      <Image
+                        src={image}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-5 pt-2">
+              <Button size="lg" className="w-full font-bold text-lg h-12">
+                Criar Conta
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Ou cadastre-se com
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={GoogleLogin}
+                className="w-full text-lg h-12"
+                size="lg"
+              >
+                Google
+                <SquareUser className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+          </form>
         </div>
-        <div className="text-center flex gap-4 mt-6">
-          <Button size="lg" variant="destructive" className="w-full">
-            Cadastrar
-          </Button>
-          <Button
-            onClick={GoogleLogin}
-            size="lg"
-            className="w-full flex items-center justify-center"
+        <div className="p-8 bg-muted/50 border-t text-center text-base">
+          Já tem uma conta?{" "}
+          <button
+            onClick={() => router.push("/login")}
+            className="font-medium text-primary hover:underline"
           >
-            Google
-            <SquareUser className="ml-2" />
-          </Button>
+            Fazer Login
+          </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

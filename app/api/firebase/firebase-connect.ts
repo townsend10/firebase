@@ -28,8 +28,9 @@ const auth = getAuth(firebaseApp);
 
 export const initializeAuth = async () => {
   try {
-    await setPersistence(auth, browserSessionPersistence);
-    console.log("Session persistence set successfully");
+    // Use local persistence to keep user logged in across sessions
+    await setPersistence(auth, browserLocalPersistence);
+    console.log("Local persistence set successfully");
     return auth;
   } catch (error: any) {
     console.error("Error setting persistence:", error);

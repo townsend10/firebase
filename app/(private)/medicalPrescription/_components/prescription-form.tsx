@@ -1,12 +1,17 @@
 "use client";
 
 import { createMedicalPrescription } from "@/actions/create-medical-prescription";
-import { createPacientMedic } from "@/actions/create-pacient-medic";
-import { CpfInput } from "@/components/cpf-input";
 import { FormInput } from "@/components/form/form-input";
-import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAction } from "@/hooks/use-action";
+import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { toast } from "sonner";
@@ -17,99 +22,112 @@ export const PrescriptionForm = () => {
 
   const { execute, fieldErrors } = useAction(createMedicalPrescription, {
     onSuccess: (data) => {
-      toast.success(`paciente foi  ${data.name} criado com sucesso`);
+      toast.success(`Atestado de ${data.name} criado com sucesso!`);
+      if (formRef.current) {
+        formRef.current.reset();
+      }
+      router.push("/pacientPrescription");
     },
     onError: (error) => {
       toast.error(error);
     },
   });
 
-  // const onSubmit = (formData: FormData) => {
-  //   const name = formData.get("name") as string;
-  //   const date = formData.get("date") as any;
-  //   const daysString = formData.get("days") as string;
-
-  //   const days = +daysString;
-
-  //   execute({ date, name, days });
-  // };
   const onSubmit = (formData: FormData) => {
     const name = formData.get("name") as string;
-    const dateString = formData.get("date") as string; // Ex: "2025-10-24"
+    const dateString = formData.get("date") as string;
     const daysString = formData.get("days") as string;
     const days = +daysString;
     const now = new Date();
     let date: Date;
 
     if (dateString) {
-      // 🎉 SOLUÇÃO: Adiciona "T00:00:00" para forçar a criação como meia-noite
-      // em UTC. Isso "engana" o construtor Date para que ele não aplique o deslocamento.
       const dateUTCString = `${dateString}T00:00:00`;
       date = new Date(dateUTCString);
       date.setUTCHours(12, 0, 0, 0);
-
       date.setHours(now.getHours());
       date.setMinutes(now.getMinutes());
     } else {
-      date = now; // Fallback
+      date = now;
     }
 
     execute({ date, name, days });
-    if (formRef.current) {
-      formRef.current.reset();
-    }
   };
-  return (
-    <div className="flex flex-col flex-grow justify-center items-center min-h-screen p-4 ">
-      <form
-        action={onSubmit}
-        ref={formRef}
-        className="bg-white shadow-2xl rounded-3xl p-10 w-full max-w-lg flex flex-col border border-gray-200"
-      >
-        <div className="flex-grow flex flex-col justify-center">
-          <h2 className="text-4xl font-bold text-center mb-10 text-gray-800 ">
-            Atestado
-          </h2>
-          <div className="space-y-6">
-            <FormInput
-              id="name"
-              type="text"
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg"
-              placeholder="Nome Completo"
-              errors={fieldErrors}
-              required
-            />
-            <FormInput
-              type="date"
-              id="date"
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg"
-              placeholder="Data de Nascimento"
-              required
-              errors={fieldErrors}
-            />
 
-            <FormInput
-              type="number"
-              id="days"
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg"
-              placeholder="Dias de atestado"
-              errors={fieldErrors}
-              max={30}
-              required
-            />
+  return (
+    <div className="flex items-center justify-center min-h-screen w-full p-4 bg-gradient-to-br from-background to-muted/20">
+      <Card className="w-full max-w-2xl shadow-2xl">
+        <CardHeader className="space-y-1 pb-6">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <FileText className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="text-3xl font-bold">
+              Criar Atestado Médico
+            </CardTitle>
           </div>
-        </div>
-        <div className="text-center mt-10">
-          <Button
-            size="lg"
-            variant="default"
-            className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300 ease-in-out text-xl"
-          >
-            Cadastrar
-          </Button>
-        </div>
-      </form>
-      
+          <CardDescription className="text-base">
+            Preencha as informações para gerar um novo atestado médico
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={onSubmit} ref={formRef} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Nome Completo */}
+              <div className="md:col-span-2">
+                <FormInput
+                  id="name"
+                  label="Nome do Paciente"
+                  type="text"
+                  placeholder="Digite o nome completo"
+                  errors={fieldErrors}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              {/* Data */}
+              <div>
+                <FormInput
+                  id="date"
+                  label="Data do Atestado"
+                  type="date"
+                  errors={fieldErrors}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              {/* Dias */}
+              <div>
+                <FormInput
+                  id="days"
+                  label="Dias de Afastamento"
+                  type="number"
+                  placeholder="Ex: 3"
+                  errors={fieldErrors}
+                  max={30}
+                  min={1}
+                  required
+                  className="h-11"
+                />
+              </div>
+            </div>
+
+            {/* Botão de Submit */}
+            <div className="pt-4">
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12 text-base font-semibold"
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                Criar Atestado
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

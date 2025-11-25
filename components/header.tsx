@@ -137,13 +137,10 @@ export const Header = () => {
         },
       ];
 
+  const { logout: authLogout } = useAuth();
+
   const logout = async () => {
-    try {
-      await signOut(auth);
-      toast.success("Usuário deslogado com sucesso");
-    } catch (error) {
-      console.error("Erro ao deslogar:", error);
-    }
+    await authLogout();
   };
 
   // useEffect(() => {

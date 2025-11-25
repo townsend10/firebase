@@ -11,17 +11,16 @@ import { toast } from "sonner";
 
 export const LoginModal = () => {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  // const { isLoggedIn } = useAuth();
 
-  if (isLoggedIn) {
-    router.push("/home");
-  }
+  // if (isLoggedIn) {
+  //   router.push("/home");
+  // }
 
   const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
     useAction(googleSign, {
       onSuccess: (data) => {
         // toast.success(`Bem vindo ${data.displayName}`);
-        router.push("/profile");
       },
       onError: (error) => {
         toast.error(error);
@@ -47,60 +46,85 @@ export const LoginModal = () => {
 
   const GoogleLogin = async () => {
     loginWithGoogle({});
+    router.push("/home");
   };
   return (
-    <div className="flex flex-grow items-center justify-center min-h-screen bg-gray-100 p-4">
-      <form
-        action={onSubmit}
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md mx-auto" // Adicionado mx-auto para centralizar em telas maiores
-      >
-        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
-          Entrar
-        </h2>
-        <div className="mb-4">
-          <FormInput
-            id="email"
-            type="email"
-            className="mb-4" // Ajustado o espaçamento para melhor responsividade
-            placeholder="Digite email"
-            errors={fieldErrors}
-          />
-          <FormInput
-            type="password"
-            id="password"
-            className="mb-6" // Ajustado o espaçamento para melhor responsividade
-            placeholder="Digite sua senha"
-            errors={fieldErrors}
-          />
-        </div>
+    <div
+      className="flex flex-col items-center justify-center min-h-screen w-full bg-cover bg-center bg-no-repeat p-4 relative"
+      style={{ backgroundImage: "url('/ophthalmology-bg.png')" }}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="w-full max-w-lg bg-card text-card-foreground shadow-2xl rounded-xl border border-border overflow-hidden relative z-10">
+        <div className="p-10">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold tracking-tight">
+              Bem-vindo de volta
+            </h2>
+            <p className="text-base text-muted-foreground mt-3">
+              Entre na sua conta para continuar
+            </p>
+          </div>
 
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-          {" "}
-          {/* Mudança para flex-col em telas menores e flex-row em telas maiores */}
-          <Button
-            size="lg"
-            variant={"destructive"}
-            className="w-full sm:w-auto"
-          >
-            {" "}
-            {/* Adicionado w-full para telas menores */}
-            Login
-          </Button>
-          <Button onClick={GoogleLogin} className="w-full sm:w-auto" size="lg">
-            {" "}
-            {/* Adicionado w-full para telas menores */}
-            Google
-          </Button>
-          <Button
-            onClick={() => router.push("/register")}
-            className="w-full sm:w-auto" // Adicionado w-full para telas menores
-            size="lg"
-            variant={"destructive"}
-          >
-            Cadastrar
-          </Button>
+          <form action={onSubmit} className="space-y-8">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <FormInput
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  errors={fieldErrors}
+                  className="bg-background h-12 text-lg"
+                />
+              </div>
+              <div className="space-y-2">
+                <FormInput
+                  type="password"
+                  id="password"
+                  placeholder="Sua senha"
+                  errors={fieldErrors}
+                  className="bg-background h-12 text-lg"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <Button size="lg" className="w-full font-bold text-lg h-12">
+                Entrar
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Ou continue com
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={GoogleLogin}
+                className="w-full text-lg h-12"
+                size="lg"
+              >
+                Google
+              </Button>
+            </div>
+          </form>
         </div>
-      </form>
+        <div className="p-8 bg-muted/50 border-t text-center text-base">
+          Não tem uma conta?{" "}
+          <button
+            onClick={() => router.push("/register")}
+            className="font-medium text-primary hover:underline"
+          >
+            Cadastre-se
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

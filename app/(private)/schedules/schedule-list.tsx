@@ -1,27 +1,36 @@
 "use client";
 
-import { getPacient } from "@/actions/get-pacient";
 import { getPacients } from "@/actions/get-pacients";
 import { getSchedules } from "@/actions/get-schedules";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
-import { Pacient, Schedule } from "@/types";
+import { Pacient } from "@/types";
 import { DocumentData } from "firebase/firestore";
+import {
+  Calendar,
+  Clock,
+  User,
+  CalendarPlus,
+  AlertCircle,
+  CheckCircle,
+  Clock10Icon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { use } from "react";
+
 interface ListPacientProps {
   pacientMedicData: Pacient;
 }
+
 export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  const {
-    data: schedules,
-    execute: getSchedulings,
-    fieldErrors: getErrorsSchedulings,
-  } = useAction(getSchedules, {
+  const { data: schedules, execute: getSchedulings } = useAction(getSchedules, {
     onSuccess: () => {},
     onError: (error) => {
       router.push("/");
@@ -29,13 +38,6 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
   });
 
   const { data: pacients, execute: getPacientsData } = useAction(getPacients, {
-    onSuccess: () => {},
-    onError: (error) => {
-      router.push("/");
-    },
-  });
-
-  const { data: pacient, execute: getPaciensData } = useAction(getPacient, {
     onSuccess: () => {},
     onError: (error) => {
       router.push("/");
@@ -64,166 +66,148 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
     return null;
   }
 
-  // Função para redirecionar para a página do paciente e agendamento
   const onClick = (scheduleId: string, pacientId: DocumentData) => {
     router.push(`/pacient/${pacientId}/schedule/${scheduleId}`);
   };
 
+  // Empty state
   if (!schedules || schedules.length === 0) {
     return (
-      <div className="flex flex-grow items-center justify-center">
-        <h1 className="text-3xl text-muted-foreground">
-          Nenhum paciente agendado, por favor clique{" "}
-          <button
-            className=" cursor-pointer hover:text-red-500"
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+            <CalendarPlus className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold">Nenhum agendamento</h2>
+          <p className="text-muted-foreground">
+            Não há agendamentos cadastrados. Acesse a lista de pacientes para
+            criar um novo agendamento.
+          </p>
+          <Button
+            size="lg"
             onClick={() => router.push("/pacient")}
+            className="mt-4"
           >
-            aqui
-          </button>{" "}
-          e agende um!
-        </h1>
+            <User className="mr-2 h-5 w-5" />
+            Ver Pacientes
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col p-6 text-xl ">
-      <h1 className="text-5xl font-bold text-gray-800 mb-6">📅 Agendamentos</h1>
+    <div className="flex-1 space-y-6 p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Agendamentos</h1>
+            <p className="text-muted-foreground mt-1">
+              {schedules.length} agendamento{schedules.length !== 1 ? "s" : ""}{" "}
+              cadastrado{schedules.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <Button onClick={() => router.push("/pacient")}>
+            <CalendarPlus className="mr-2 h-4 w-4" />
+            Novo Agendamento
+          </Button>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {schedules?.map((schedule) => {
-          const formtData = new Date(schedule.date);
-          const scheduleDate = new Date(schedule.date.replace(/-/g, "/"));
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+        {/* Schedules Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {schedules?.map((schedule) => {
+            const formtData = new Date(schedule.date);
+            const scheduleDate = new Date(schedule.date.replace(/-/g, "/"));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-          const status =
-            scheduleDate.getTime() < today.getTime()
+            // Determinar status
+            const isOverdue = scheduleDate.getTime() < today.getTime();
+            const isConfirmed = schedule.status === "confirm";
+            const statusText = isOverdue
               ? "Atrasado"
-              : schedule.status === "confirm"
+              : isConfirmed
               ? "Confirmado"
               : "Aguardando";
 
-          const findPacientName = pacients?.find(
-            (pacient) => pacient.id === schedule.pacientId
-          );
+            const findPacientName = pacients?.find(
+              (pacient) => pacient.id === schedule.pacientId
+            );
 
-          const pacientName =
-            findPacientName?.name || "Paciente não encontrado";
-          const pacientForSchedule = pacients?.filter(
-            (pacient) => pacient.id === schedule.pacientId
-          );
-          const scheduleIds = pacientForSchedule?.map(
-            (schedule: DocumentData) => schedule.id
-          );
+            const pacientName =
+              findPacientName?.name || "Paciente não encontrado";
+            const initials = pacientName
+              .split(" ")
+              .map((n: string) => n[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2);
 
-          return (
-            <div
-              className="bg-white rounded-xl shadow-lg p-6 transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-200 cursor-pointer"
-              key={schedule.id}
-              onClick={() => {
-                if (scheduleIds) {
-                  onClick(schedule.id, scheduleIds); // Redireciona com o id do paciente
-                }
-              }}
-            >
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                🏥 Nome: <span className="text-blue-600">{pacientName}</span>
-              </h2>
+            const pacientForSchedule = pacients?.filter(
+              (pacient) => pacient.id === schedule.pacientId
+            );
+            const scheduleIds = pacientForSchedule?.map(
+              (schedule: DocumentData) => schedule.id
+            );
 
-              <p className="text-gray-600 mt-2 flex items-center gap-2">
-                📆 <span className="font-semibold">Data:</span>{" "}
-                {formtData.toLocaleDateString("pt-BR")}
-              </p>
+            // Badge variant baseado no status
+            const getBadgeVariant = () => {
+              if (isOverdue) return "destructive";
+              if (isConfirmed) return "default";
+              return "secondary";
+            };
 
-              <p className="text-gray-600 mt-2 flex items-center gap-2">
-                ⏰ <span className="font-semibold">Hora:</span> {schedule.hour}
-              </p>
+            const getStatusIcon = () => {
+              if (isOverdue) return <Clock10Icon className="mr-1 h-3 w-3" />;
+              if (isConfirmed) return <CheckCircle className="mr-1 h-3 w-3" />;
+              return <AlertCircle className="mr-1 h-3 w-3" />;
+            };
 
-              <div className="mt-4">
-                <span
-                  className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                    status === "Atrasado"
-                      ? "bg-red-100 text-red-600"
-                      : status === "Confirmado"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-yellow-100 text-yellow-600"
-                  }`}
-                >
-                  {status}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="flex flex-col p-5 text-2xl">
-      <h1 className="text-5xl mb-5 mt-5">Agendamentos</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 cursor-pointer">
-        {schedules?.map((schedule) => {
-          // Aqui estamos exibindo todos os agendamentos, sem filtrar por paciente
-          // Agora, para cada agendamento, vamos tentar associar o paciente e mostrar
-
-          const dateToBr = schedule.date;
-          const formtData = new Date(dateToBr);
-
-          const scheduleDate = new Date(schedule.date.replace(/-/g, "/"));
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-
-          today.setHours(0, 0, 0, 0);
-          const status =
-            scheduleDate.getTime() < today.getTime()
-              ? "Atrasado"
-              : schedule.status === "confirm"
-              ? "Confirmado"
-              : "Aguardando";
-
-          dateToBr;
-          const pacientForSchedule = pacients?.filter(
-            (pacient) => pacient.id === schedule.pacientId
-          );
-          // Verifica se encontramos o paciente para este agendamento
-          const scheduleIds = pacientForSchedule?.map(
-            (schedule: DocumentData) => schedule.id
-          );
-
-          const findPacientName = pacients?.filter(
-            (pacient) => pacient.id === schedule.pacientId
-          );
-
-          const pacientName =
-            findPacientName?.map((list) => list.name) ||
-            "Paciente não encontrado";
-
-          return (
-            <div
-              className="bg-white rounded-lg shadow-md p-4 transition-transform transform hover:scale-105"
-              key={schedule.id}
-              onClick={() => {
-                if (scheduleIds) {
-                  onClick(schedule.id, scheduleIds); // Redireciona com o id do paciente
-                }
-              }}
-            >
-              <p className="font-medium">Nome: {pacientName}</p>
-
-              <p className="font-medium ">
-                📅 Data: {formtData.toLocaleDateString("pt-BR")}
-              </p>
-
-              <p className="font-medium">⏰ Hora: {schedule.hour}</p>
-              {/* <div className="mt-3">
-                <span className="text-sm text-gray-500">Status: {status}</span>
-              </div> */}
-            </div>
-          );
-        })}
+            return (
+              <Card
+                key={schedule.id}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => {
+                  if (scheduleIds) {
+                    onClick(schedule.id, scheduleIds);
+                  }
+                }}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg leading-none mb-1">
+                          {pacientName}
+                        </h3>
+                        <Badge variant={getBadgeVariant()} className="mt-1">
+                          {getStatusIcon()}
+                          {statusText}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
+                    <span>{formtData.toLocaleDateString("pt-BR")}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4 flex-shrink-0" />
+                    <span>{schedule.hour}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

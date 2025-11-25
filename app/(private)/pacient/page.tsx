@@ -1,11 +1,13 @@
 "use client";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { Pacient } from "@/types";
-import { getAuth } from "firebase/auth";
-import { useRouter } from "next/navigation";
 import { ListPacient } from "./_components/list-pacients";
+
+// Force dynamic rendering for real-time patient data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const PagePacient = () => {
-  const pacients: Pacient = {
+  // Empty initial patient data - the component will fetch real data
+  const emptyPacient = {
     birthdayDate: "",
     cpf: "",
     email: "",
@@ -14,19 +16,7 @@ const PagePacient = () => {
     id: "",
   };
 
-  const { currentUser } = getAuth(firebaseApp);
-
-  const router = useRouter();
-
-  if (!currentUser) {
-    router.push("/");
-  }
-
-  return (
-    <div className="flex flex-grow">
-      <ListPacient pacient={pacients} />
-    </div>
-  );
+  return <ListPacient pacient={emptyPacient} />;
 };
 
 export default PagePacient;

@@ -1,21 +1,9 @@
 "use client";
-import { getAuth } from "firebase/auth";
 import { HomePublic } from "./_components/home-public";
-import { firebaseApp } from "../api/firebase/firebase-connect";
-import { useRouter } from "next/navigation";
+
+// Cache this page for 1 hour (public landing page)
+export const revalidate = 3600;
 
 export default function Page() {
-  const { currentUser } = getAuth(firebaseApp);
-
-  const router = useRouter();
-
-  if (!currentUser) {
-    router.push("/home");
-  }
-
-  return (
-    <div className="flex flex-grow">
-      <HomePublic />
-    </div>
-  );
+  return <HomePublic />;
 }

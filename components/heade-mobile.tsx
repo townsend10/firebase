@@ -129,14 +129,10 @@ export const HeaderMobile = () => {
         },
       ];
 
+  const { logout: authLogout } = useAuth();
+
   const logout = async () => {
-    try {
-      await signOut(auth);
-       navigateHome.replace("/");
-      toast.success("Usuário deslogado com sucesso");
-    } catch (error) {
-      console.error("Erro ao deslogar:", error);
-    }
+    await authLogout();
   };
 
   return (

@@ -35,36 +35,27 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   try {
     const result = await signInWithPopup(auth, provider);
-    const user = result.user; // Aqui está o usuário logado
+    const user = result.user;
 
-    // const imageRef = ref(
-    //   storage,
-    //   `images/${auth.currentUser?.uid}/profile.jpg`
-    // ); // Defina um caminho apropriado
-    // await uploadBytes(imageRef, user.photoURL as any); // imageFile deve ser um Blob ou File
-
-    // const imageUrl = await getDownloadURL(imageRef);
+    // Check if user already exists in Firestore
     const userQuery = query(
       collection(db, "users"),
       where("user.uid", "==", user.uid)
     );
     const userDocs = await getDocs(userQuery);
 
-    // Se o usuário já existir, não faz nada
-    if (!userDocs.empty) {
-      return {
-        error: "Usuário já cadastrado.",
-      };
+    // If user doesn't exist, create a new user document
+    if (userDocs.empty) {
+      await addDoc(collection(db, "users"), {
+        user: {
+          uid: user.uid,
+          name: user.displayName,
+          imageUrl: user.photoURL,
+        },
+      });
     }
 
-    await addDoc(collection(db, "users"), {
-      user: {
-        uid: user.uid,
-        name: user.displayName,
-        imageUrl: user.photoURL,
-      },
-    });
-
+    // Return user data (works for both new and existing users)
     return { data: user };
   } catch (error) {
     return {

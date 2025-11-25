@@ -1,9 +1,7 @@
-"use client";
 import React, { forwardRef, useState } from "react";
 import { Input } from "./ui/input";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
-import { FormErrors } from "./form/form-errors";
 import { Label } from "./ui/label";
 
 interface PhoneInputProps {
@@ -17,112 +15,103 @@ interface PhoneInputProps {
   className?: string;
   defaultValue?: string;
   onBlur?: () => void;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-
-  min?: string | number | undefined;
-  max?: string | number | undefined;
+  max?: number;
 }
 
 export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
   (
     {
       id,
-      onChange,
       defaultValue,
       disabled,
       label,
-      max,
-      min,
       onBlur,
       required,
       type,
       className,
       errors,
       placeholder,
+      max,
     },
     ref
   ) => {
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState(defaultValue || "");
     const { pending } = useFormStatus();
 
-    const handlePhoneChange = (event: any) => {
-      // Remove caracteres não numéricos do valor digitado
+    const formatPhone = (event: React.ChangeEvent<HTMLInputElement>) => {
+      // Remove caracteres não numéricos
       const rawValue = event.target.value.replace(/\D/g, "");
 
-      // Formata o número de telefone
-      const formattedValue = formatPhoneNumber(rawValue);
+      // Limita a 11 dígitos (DDD + número)
+      const limitedValue = rawValue.slice(0, 11);
 
-      // Atualiza o estado do componente com o valor formatado
+      // Formata o número
+      const formattedValue = formatPhoneNumber(limitedValue);
+
+      // Atualiza o estado
       setPhoneNumber(formattedValue);
     };
 
-    const formatPhoneNumber = (value: any) => {
-      // Adapte a lógica de formatação conforme necessário para atender às suas necessidades
-      const match = value.match(/^(\d{0,2})(\d{0,4})(\d{0,4})$/);
+    const formatPhoneNumber = (value: string) => {
+      // Celular: (00) 00000-0000
+      const cellMatch = value.match(/^(\d{2})(\d{5})(\d{4})$/);
+      if (cellMatch) {
+        return `(${cellMatch[1]}) ${cellMatch[2]}-${cellMatch[3]}`;
+      }
 
-      if (match) {
-        return `(${match[1]})${match[2] ? " " + match[2] : ""}${
-          match[3] ? "-" + match[3] : ""
-        }`;
+      // Fixo: (00) 0000-0000
+      const fixedMatch = value.match(/^(\d{2})(\d{4})(\d{4})$/);
+      if (fixedMatch) {
+        return `(${fixedMatch[1]}) ${fixedMatch[2]}-${fixedMatch[3]}`;
+      }
+
+      // Formatação parcial enquanto digita
+      if (value.length > 10) {
+        return value.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
+      } else if (value.length > 6) {
+        return value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+      } else if (value.length > 2) {
+        return value.replace(/^(\d{2})(\d{0,5}).*/, "($1) $2");
       }
 
       return value;
     };
 
     return (
-      // <div>
-      //   <Input
-      //     onBlur={onBlur}
-      //     defaultValue={defaultValue}
-      //     ref={ref}
-      //     required={required}
-      //     name={id}
-      //     id={id}
-      //     value={phoneNumber}
-      //     onChange={handlePhoneChange}
-      //     placeholder={placeholder}
-      //     type={type}
-      //     disabled={pending || disabled}
-      //     className={cn("text-sm px-2 py-1 h-7", className)}
-      //     aria-describedby={`${id}-error`}
-      //     min={min}
-      //     max={max}
-      //   />
-
-      //   <div>
-      //     <FormErrors id={id} errors={errors} />
-      //   </div>
-      // </div>
-
       <div className="space-y-2">
-        <div className="space-y-1">
-          {label ? (
-            <Label
-              htmlFor={id}
-              className="text-xs font-semibold text-neutral-700"
-            >
-              {label}
-            </Label>
-          ) : null}
-          <Input
-            min={min}
-            value={phoneNumber}
-            max={max}
-            onBlur={onBlur}
-            defaultValue={defaultValue}
-            ref={ref}
-            required={required}
-            name={id}
-            id={id}
-            placeholder={placeholder}
-            type={type}
-            disabled={pending || disabled}
-            className={cn("text-sm px-2 py-1 h-7", className)}
-            aria-describedby={`${id}-error`}
-            onChange={handlePhoneChange}
-          />
-        </div>
-        <FormErrors id={id} errors={errors} />
+        {label && (
+          <Label htmlFor={id} className="text-sm font-medium">
+            {label}
+            {required && <span className="text-destructive ml-1">*</span>}
+          </Label>
+        )}
+        <Input
+          onBlur={onBlur}
+          defaultValue={defaultValue}
+          ref={ref}
+          required={required}
+          name={id}
+          id={id}
+          value={phoneNumber}
+          onChange={formatPhone}
+          placeholder={placeholder || "(00) 00000-0000"}
+          type="tel"
+          disabled={pending || disabled}
+          className={cn("text-sm px-2 py-1 h-7", className)}
+          aria-describedby={`${id}-error`}
+          maxLength={15} // (00) 00000-0000
+        />
+        {errors && errors[id] && (
+          <div
+            id={`${id}-error`}
+            aria-live="polite"
+            className="text-xs text-destructive mt-1"
+          >
+            {errors[id]?.map((error: string) => (
+              <p key={error}>{error}</p>
+            ))}
+          </div>
+        )}
       </div>
     );
   }

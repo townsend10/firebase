@@ -30,6 +30,7 @@ import {
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NavUser } from "./nav-user";
 import { UserProfile } from "../user-profile";
@@ -86,15 +87,10 @@ export function AppSidebar() {
     });
   }, [userId, auth.currentUser?.uid, getUser]);
 
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      const [image, setImage] = useState("");
+  const { logout: authLogout } = useAuth();
 
-      toast.success("Usuário deslogado com sucesso");
-    } catch (error) {
-      console.error("Erro ao deslogar:", error);
-    }
+  const logout = async () => {
+    await authLogout();
   };
 
   const items = [

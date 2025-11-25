@@ -2,12 +2,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { unsubscribe } from "diagnostics_channel";
+import { useRouter } from "next/navigation";
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const auth = getAuth(firebaseApp);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     // Verifica mudanças no estado de autenticação
@@ -27,10 +28,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     return () => unsubscribe(); // Cleanup ao desmontar
-  }, []);
+  }, [auth]);
 
   const logout = async () => {
-    await signOut(auth);
+    try {
+      await signOut(auth);
+      // Force redirect to home page after logout
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
   };
 
   return (

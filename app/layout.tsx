@@ -28,11 +28,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <main className="flex flex-grow  min-h-screen">
+            <main className="min-h-screen bg-background font-sans antialiased">
               <Toaster />
-              <div className="flex "></div>
-              <div className="flex flex-grow">{children}</div>
-              <ModeToggle />
+              {children}
+              <div className="fixed bottom-4 right-4 z-50">
+                <ModeToggle />
+              </div>
             </main>
           </AuthProvider>
         </ThemeProvider>

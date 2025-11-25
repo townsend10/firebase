@@ -4,8 +4,24 @@ import { getSchedule } from "@/actions/get-schedule";
 import { updateSchedule } from "@/actions/update-schedule";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useAction } from "@/hooks/use-action";
 import { Schedule } from "@/types";
+import { CalendarClock, Save } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,9 +29,8 @@ import { toast } from "sonner";
 export const ScheduleEdit = () => {
   const params = useParams();
   const router = useRouter();
-
-  const [error, setError] = useState("");
   const [time, setTime] = useState("");
+  const [status, setStatus] = useState("waiting");
 
   const scheduleId = params.scheduleId as string;
   const getPacientId = params.pacientId as string;
@@ -26,22 +41,18 @@ export const ScheduleEdit = () => {
     fieldErrors: getErrorsSchedulings,
   } = useAction(getSchedule, {
     onSuccess: (data: Schedule) => {
-      // toast.success(`paciente foi  recupearado com sucesso h `);
-      // router.push(`/pacient/${getPacientId}/schedule/${data?.id}`);
       setTime(data.hour);
+      setStatus(data.status);
     },
     onError: (error) => {
       toast.error(error);
       router.push("/");
     },
   });
-  const {
-    data: getData,
-    execute,
-    fieldErrors,
-  } = useAction(updateSchedule, {
+
+  const { execute, fieldErrors } = useAction(updateSchedule, {
     onSuccess: (data) => {
-      toast.success(`Hora alterada  com sucesso`);
+      toast.success("Agendamento atualizado com sucesso!");
       router.push(`/pacient`);
     },
     onError: (error) => {
@@ -54,113 +65,133 @@ export const ScheduleEdit = () => {
   }, [getScheduling, scheduleId]);
 
   const onSubmit = (formData: FormData) => {
-    const date = formData.get("date") as any;
-
+    const date = formData.get("date") as string;
     const hour = formData.get("hour") as string;
 
-    const status = formData.get("status") as
-      | "confirm"
-      | "cancelled"
-      | "waiting"
-      | "none";
-
-    execute({ date, hour, id: scheduleId, status });
+    execute({
+      date,
+      hour,
+      id: scheduleId,
+      status: status as "confirm" | "cancelled" | "waiting" | "none",
+    });
   };
 
-  const handleChange = (event: any) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    const numericValue = value.replace(/[^0-9]/g, "").slice(0, 4);
+    const hours = parseInt(numericValue.slice(0, 2));
+    const minutes = parseInt(numericValue.slice(2, 4));
 
-    // Usando uma regex para formatar a entrada
-    const formattedValue = value
-      .replace(/[^0-9]/g, "") // Remove qualquer caractere que não seja número
-      .slice(0, 4) // Limita a 4 caracteres
-      .replace(/(\d{2})(\d{0,2})/, "$1:$2"); // Adiciona ":" após os primeiros dois dígitos
-
-    setTime(formattedValue);
-  };
-
-  const handleBlur = () => {
-    if (time.length === 5) {
-      const [hours, minutes] = time.split(":").map(Number);
-      if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-        setError("Hora inválida. Ex: 23:59h");
-      } else {
-        setTime(`${time}h`); // Adiciona 'h' ao final
-      }
+    if (hours > 23) {
+      setTime("23:59");
+      return;
     }
+
+    if (minutes > 59) {
+      if (hours === 23) {
+        setTime("23:59");
+      } else {
+        setTime(hours.toString().padStart(2, "0") + ":59");
+      }
+      return;
+    }
+
+    const formattedValue = numericValue.replace(/(\d{2})(\d{0,2})/, "$1:$2");
+    setTime(formattedValue);
   };
 
   let yourDate = new Date();
   const formatData = yourDate.toISOString().split("T")[0];
 
   return (
-    <div className="flex flex-grow justify-center items-center min-h-screen bg-gray-100 p-4">
-      <form
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md"
-        action={onSubmit}
-      >
-        <h1 className=" text-center text-2xl font-semibold text-gray-700 ">
-          Remarcar
-        </h1>
-        <div className="space-y-4 mt-2">
-          <FormInput
-            id="date"
-            type="date"
-            className="w-full"
-            min={formatData}
-            placeholder="Data do agendamento"
-            errors={fieldErrors}
-            defaultValue={data?.date}
-            required
-          />
+    <div className="flex items-center justify-center min-h-screen w-full p-4 bg-gradient-to-br from-background to-muted/20">
+      <Card className="w-full max-w-2xl shadow-2xl">
+        <CardHeader className="space-y-1 pb-6">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <CalendarClock className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="text-3xl font-bold">
+              Editar Agendamento
+            </CardTitle>
+          </div>
+          <CardDescription className="text-base">
+            Altere os dados do agendamento conforme necessário
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={onSubmit} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Data */}
+              <div>
+                <FormInput
+                  id="date"
+                  label="Data da Consulta"
+                  type="date"
+                  min={formatData}
+                  placeholder="Data do agendamento"
+                  errors={fieldErrors}
+                  defaultValue={data?.date}
+                  required
+                  className="h-11"
+                />
+              </div>
 
-          <FormInput
-            id="hour"
-            // defaultValue={data?.hour}
-            value={time}
-            max={5}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className="w-full"
-            placeholder="hora"
-            errors={fieldErrors}
-            // defaultValue={data?.hour}
-            required
-          />
+              {/* Hora */}
+              <div>
+                <FormInput
+                  id="hour"
+                  label="Horário"
+                  value={time}
+                  onChange={handleChange}
+                  placeholder="HH:MM"
+                  errors={fieldErrors}
+                  required
+                  className="h-11"
+                />
+              </div>
 
-          {/* <FormInput
-            type="text"
-            id="status"
-            className="mb-10"
-            placeholder="status"
-            errors={fieldErrors}
-          /> */}
-          <select
-            id="status"
-            name="status"
-            // value={value}
-            // onChange={onChange}
-            className="w-full"
-            defaultValue={data?.status}
-          >
-            <option value="" id="status" disabled defaultValue={data?.status}>
-              Selecione um status
-            </option>
-            <option value="waiting" id="status">
-              Aguardando
-            </option>
-            <option value="confirm" id="status">
-              Confirmado
-            </option>
-          </select>
-        </div>
+              {/* Status */}
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="status" className="text-sm font-medium">
+                  Status do Agendamento
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Selecione um status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="waiting">Aguardando</SelectItem>
+                    <SelectItem value="confirm">Confirmado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-        <div className="text-center mt-6 space-x-2">
-          <Button size="lg" variant={"destructive"} className="w-full">
-            Alterar{" "}
-          </Button>
-        </div>
-      </form>
+            {/* Botões */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="flex-1 h-12 text-base"
+                onClick={() => router.push(`/pacient/${getPacientId}`)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                size="lg"
+                className="flex-1 h-12 text-base font-semibold"
+              >
+                <Save className="mr-2 h-5 w-5" />
+                Salvar Alterações
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
