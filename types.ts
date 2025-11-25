@@ -11,6 +11,7 @@ export type User = {
   id?: string;
   name: string;
   phone: string;
+  role: "guest" | "admin"; // User role for permissions
 };
 
 export type Prescription = {

@@ -3,8 +3,25 @@
 import { deleteSchedule } from "@/actions/delete-schedule";
 import { getSchedule } from "@/actions/get-schedule";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
+import {
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Trash2,
+  Edit,
+  CalendarClock,
+} from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -12,6 +29,9 @@ import { toast } from "sonner";
 export const ScheduleInfo = () => {
   const params = useParams();
   const router = useRouter();
+  const id = params.scheduleId as string;
+  const pacientId = params.pacientId as string;
+  const { isLoggedIn } = useAuth();
 
   const formatDate = (dateString: any) => {
     if (!dateString) return "";
@@ -22,32 +42,25 @@ export const ScheduleInfo = () => {
     });
   };
 
-  const id = params.scheduleId as string;
-  const { isLoggedIn } = useAuth();
-  const pacientId = params.pacientId as string;
-  const {
-    data,
-    execute: getScheduling,
-    fieldErrors: getErrorsSchedulings,
-  } = useAction(getSchedule, {
+  const { data, execute: getScheduling } = useAction(getSchedule, {
     onSuccess: (data) => {
-      // toast.success(`paciente foi  recupearado com sucesso h `);
-      // router.push(`/pacient/${getPacientId}/schedule/${data?.id}`);
+      // Success
     },
     onError: (error) => {
       toast.error(error);
     },
   });
-  const { data: deleteScheduleData, execute: deleteScheduleExecute } =
-    useAction(deleteSchedule, {
-      onComplete: async () => {
-        await toast.success(`paciente foi  deletado com sucesso h `);
-        await router.push("/pacient");
-      },
-      onError: (error) => {
-        toast.error(error);
-      },
-    });
+
+  const { execute: deleteScheduleExecute } = useAction(deleteSchedule, {
+    onComplete: async () => {
+      toast.success("Agendamento cancelado com sucesso!");
+      await router.push("/pacient");
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+
   useEffect(() => {
     getScheduling({
       date: "",
@@ -58,43 +71,112 @@ export const ScheduleInfo = () => {
   }, [getScheduling, id]);
 
   const onDelete = () => {
-    deleteScheduleExecute({ id });
+    if (confirm("Tem certeza que deseja cancelar este agendamento?")) {
+      deleteScheduleExecute({ id });
+    }
   };
+
   if (!isLoggedIn) {
     return null;
   }
+
+  const isConfirmed = data?.status === "confirm";
+
   return (
-    <div className="flex flex-col mt-10 ml-10 bg-white p-6 rounded-lg shadow-lg max-w-md">
-      <h1 className="text-5xl font-bold text-gray-800">Agendamento</h1>
-      <div className="mt-5 text-2xl text-gray-600">
-        <p className="font-medium">📅 Data: {data?.date}</p>
-        <p className="font-medium">⏰ Hora: {data?.hour}hs</p>
-        {data?.status === "confirm" ? (
-          <div className="font-bold text-green-600">✔️ Confirmado</div>
-        ) : (
-          <div className="font-bold text-yellow-600">⏳ Aguardando</div>
-        )}
-      </div>
-      <div className="flex space-x-2 mt-6">
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={onDelete}
-          className="bg-red-600 hover:bg-red-700 text-white"
-        >
-          ❌ Cancelar
-        </Button>
-        <Button
-          size="sm"
-          variant="default"
-          onClick={() => {
-            router.push(`/pacient/${pacientId}/schedule/${id}/edit`);
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          ✏️ Alterar
-        </Button>
-      </div>
+    <div className="flex items-center justify-center min-h-screen w-full p-4 bg-gradient-to-br from-background to-muted/20">
+      <Card className="w-full max-w-4xl shadow-2xl">
+        <CardHeader className="space-y-1 pb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <CalendarClock className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-4xl font-bold">
+              Detalhes do Agendamento
+            </CardTitle>
+          </div>
+          <CardDescription className="text-lg">
+            Informações completas sobre este agendamento
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          {/* Status Badge */}
+          <div className="flex justify-center">
+            <Badge
+              variant={isConfirmed ? "default" : "secondary"}
+              className="text-lg px-6 py-3"
+            >
+              {isConfirmed ? (
+                <>
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  Confirmado
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="mr-2 h-5 w-5" />
+                  Aguardando Confirmação
+                </>
+              )}
+            </Badge>
+          </div>
+
+          {/* Informações do Agendamento */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="flex items-center gap-4 p-6 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-background rounded-lg">
+                <Calendar className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <p className="text-base text-muted-foreground mb-1">Data</p>
+                <p className="text-2xl font-semibold">
+                  {formatDate(data?.date)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-6 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-background rounded-lg">
+                <Clock className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <p className="text-base text-muted-foreground mb-1">Horário</p>
+                <p className="text-2xl font-semibold">{data?.hour}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botões de Ação */}
+          <div className="grid gap-4 md:grid-cols-3 pt-6">
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-14 text-lg"
+              onClick={() => router.push(`/pacient/${pacientId}`)}
+            >
+              Voltar
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-14 text-lg"
+              onClick={() =>
+                router.push(`/pacient/${pacientId}/schedule/${id}/edit`)
+              }
+            >
+              <Edit className="mr-2 h-5 w-5" />
+              Editar
+            </Button>
+            <Button
+              variant="destructive"
+              size="lg"
+              className="h-14 text-lg"
+              onClick={onDelete}
+            >
+              <Trash2 className="mr-2 h-5 w-5" />
+              Cancelar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

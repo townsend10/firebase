@@ -51,6 +51,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         minute: "2-digit",
       })} e recebeu ${data.days} dias de repouso médico.`,
       days: days,
+      pacientId: data.pacientId, // Save linked patient ID
       created_at: new Date().toISOString(),
     });
 

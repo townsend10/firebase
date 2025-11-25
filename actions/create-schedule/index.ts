@@ -1,8 +1,8 @@
 // "use server";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth } from "firebase/auth";
+import { CreateSchedule } from "./schema";
+import { InputType, ReturnType } from "./types";
+import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import {
   addDoc,
   collection,
@@ -11,99 +11,84 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { CreateSchedule } from "./schema";
-import { InputType, ReturnType } from "./types";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
 
-  if (!auth) {
-    return {
-      error: "Erro ao inicializar o firebase",
-    };
-  }
-
-  const { currentUser } = getAuth(firebaseApp);
-
-  if (!currentUser) {
-    return {
-      error: "Usuario nao conectado",
-    };
-  }
-
-  const { date, hour, pacientId, status } = data;
-
-  let schedule = data;
-  const existingSchedulesQuery = query(
-    collection(db, "schedule"),
-    where("pacientId", "==", pacientId)
-  );
-
-  const existingSchedulesSnapshot = await getDocs(existingSchedulesQuery);
-  if (!existingSchedulesSnapshot.empty) {
-    return {
-      error: "Este paciente já tem um agendamento.",
-    };
-  }
-
-  const existingScheduleHourQuery = query(
-    collection(db, "schedule"),
-    where("hour", "==", hour),
-    where("date", "==", date)
-  );
-
-  const existingScheduleHourQuerySnapshot = await getDocs(
-    existingScheduleHourQuery
-  );
-  if (!existingScheduleHourQuerySnapshot.empty) {
-    return {
-      error: "Horario ja delimitado por outro paciente",
-    };
-  }
-  const requestDateTime = new Date(`${date}T${hour}:00`);
-  const startTime = new Date(requestDateTime.getTime() - 60 * 60 * 1000); // 1 hora antes
-  const endTime = new Date(requestDateTime.getTime() + 60 * 60 * 1000); // 1 hora depois
-
-  // Verifica se há agendamentos dentro do intervalo de 1 hora
-  const timeSlotQuery = query(
-    collection(db, "schedule"),
-    where("date", "==", date)
-  );
-
-  const timeSlotSnapshot = await getDocs(timeSlotQuery);
-  const isTimeSlotOccupied = timeSlotSnapshot.docs.some((doc) => {
-    const { hour: existingHour } = doc.data();
-    const existingDateTime = new Date(`${date}T${existingHour}:00`);
-    // return existingDateTime >= startTime || existingDateTime <= endTime;
-    // return existingDateTime <= endTime ;
-
-    return existingDateTime >= startTime && existingDateTime < endTime;
-
-    // return existingDateTime > requestDateTime && existingDateTime <= endTime; // Mudança aqui
-  });
-
-  if (isTimeSlotOccupied) {
-    return {
-      error: "Este horário está lotado.",
-    };
-  }
   try {
-    await addDoc(collection(db, "schedule"), {
+    const { date, hour, pacientId, status, userId, userRole } = data;
+
+    // Validation 1: Check if time slot is available (no conflicts)
+    const schedulesRef = collection(db, "schedules");
+    const timeConflictQuery = query(
+      schedulesRef,
+      where("date", "==", date),
+      where("hour", "==", hour)
+    );
+    const conflictSnapshot = await getDocs(timeConflictQuery);
+
+    if (!conflictSnapshot.empty) {
+      return {
+        error:
+          "Este horário já está ocupado. Por favor, escolha outro horário.",
+      };
+    }
+
+    // Validation 2: If user is GUEST, check if they already have an active appointment
+    if (userRole === "guest" && userId) {
+      const userSchedulesQuery = query(
+        schedulesRef,
+        where("pacientId", "==", pacientId),
+        where("status", "in", ["confirm", "waiting"])
+      );
+      const userSchedulesSnapshot = await getDocs(userSchedulesQuery);
+
+      if (!userSchedulesSnapshot.empty) {
+        // Check if any appointment is still valid (date hasn't passed)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const hasActiveAppointment = userSchedulesSnapshot.docs.some((doc) => {
+          const scheduleData = doc.data();
+          const scheduleDate = new Date(scheduleData.date);
+          scheduleDate.setHours(0, 0, 0, 0);
+
+          return scheduleDate >= today;
+        });
+
+        if (hasActiveAppointment) {
+          return {
+            error:
+              "Você já possui um agendamento ativo. Cancele ou aguarde a data passar para agendar novamente.",
+          };
+        }
+      }
+    }
+
+    // Create the schedule
+    const newSchedule = await addDoc(collection(db, "schedules"), {
       date,
       hour,
-
       pacientId,
-      status,
-      created_at: new Date().toISOString(),
+      status: status || "waiting",
+      createdAt: new Date().toISOString(),
+      createdBy: userId || "system",
     });
 
-    return { data: schedule };
+    return {
+      data: {
+        id: newSchedule.id,
+        date,
+        hour,
+        pacientId,
+        status: status || "waiting",
+      },
+    };
   } catch (error) {
     return {
-      error: `${error}`,
+      error: `Erro ao criar agendamento: ${error}`,
     };
   }
 };
 
-export const createShedule = createSafeAction(CreateSchedule, handler);
+export const createSchedule = createSafeAction(CreateSchedule, handler);

@@ -21,4 +21,5 @@ export const CreateMedicalPrescription = z.object({
     required_error: "Digite um numero",
     invalid_type_error: "Digite um invalido",
   }),
+  pacientId: z.string().optional(), // ID do paciente para vincular ao usuário
 });

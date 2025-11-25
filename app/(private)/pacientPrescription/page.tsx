@@ -1,16 +1,16 @@
+"use client";
 import { ListPrescription } from "./_components/list-prescription";
 
-// Force dynamic rendering for real-time prescription data (critical medical data)
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Static generation with 1 week cache (604800 seconds)
+export const revalidate = 604800;
 
-const pacientPrescription = () => {
+const PacientPrescriptionPage = () => {
   return (
     <div className="w-full min-h-screen">
       <h1 className="mt-10 text-4xl font-bold">Atestados</h1>
-      <ListPrescription id="" content="" name="" />;
+      <ListPrescription id="" content="" name="" />
     </div>
   );
 };
 
-export default pacientPrescription;
+export default PacientPrescriptionPage;

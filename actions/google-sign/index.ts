@@ -52,6 +52,8 @@ const handler = async (data: InputType): Promise<ReturnType> => {
           name: user.displayName,
           imageUrl: user.photoURL,
         },
+        role: "guest", // Default role for new users
+        createdAt: new Date().toISOString(),
       });
     }
 

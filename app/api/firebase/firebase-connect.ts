@@ -5,11 +5,14 @@ import "firebase/auth";
 import {
   AuthError,
   browserLocalPersistence,
-  browserSessionPersistence,
   getAuth,
   setPersistence,
 } from "firebase/auth";
-import { persistentLocalCache } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -24,6 +27,14 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
+// Initialize Firestore with persistent cache (1 week = 604800000 ms)
+const db = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+    cacheSizeBytes: 100 * 1024 * 1024, // 100 MB cache size
+  }),
+});
+
 const auth = getAuth(firebaseApp);
 
 export const initializeAuth = async () => {
@@ -37,8 +48,8 @@ export const initializeAuth = async () => {
     if (error as AuthError) {
       console.error("Firebase Authentication Error:", error.code);
     }
-    throw error; // Re-throw to allow higher-level error handling
+    throw error;
   }
 };
 
-export { firebaseApp, auth };
+export { firebaseApp, auth, db };

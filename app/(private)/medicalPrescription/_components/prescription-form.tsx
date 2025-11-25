@@ -1,6 +1,7 @@
 "use client";
 
 import { createMedicalPrescription } from "@/actions/create-medical-prescription";
+import { getPacients } from "@/actions/get-pacients";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +11,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAction } from "@/hooks/use-action";
 import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export const PrescriptionForm = () => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [selectedPacientId, setSelectedPacientId] = useState<string>("");
+
+  // Fetch patients
+  const { data: pacients, execute: fetchPacients } = useAction(getPacients, {
+    onError: (error) => toast.error("Erro ao carregar pacientes"),
+  });
+
+  useEffect(() => {
+    fetchPacients({
+      birthdayDate: "",
+      cpf: "",
+      name: "",
+      email: "",
+      phone: "",
+    });
+  }, [fetchPacients]);
 
   const { execute, fieldErrors } = useAction(createMedicalPrescription, {
     onSuccess: (data) => {
@@ -26,6 +51,7 @@ export const PrescriptionForm = () => {
       if (formRef.current) {
         formRef.current.reset();
       }
+      setSelectedPacientId("");
       router.push("/pacientPrescription");
     },
     onError: (error) => {
@@ -34,7 +60,10 @@ export const PrescriptionForm = () => {
   });
 
   const onSubmit = (formData: FormData) => {
-    const name = formData.get("name") as string;
+    // Find selected patient name
+    const selectedPacient = pacients?.find((p) => p.id === selectedPacientId);
+    const name = selectedPacient?.name || (formData.get("name") as string);
+
     const dateString = formData.get("date") as string;
     const daysString = formData.get("days") as string;
     const days = +daysString;
@@ -51,7 +80,12 @@ export const PrescriptionForm = () => {
       date = now;
     }
 
-    execute({ date, name, days });
+    execute({
+      date,
+      name,
+      days,
+      pacientId: selectedPacientId, // Pass selected patient ID
+    });
   };
 
   return (
@@ -67,19 +101,49 @@ export const PrescriptionForm = () => {
             </CardTitle>
           </div>
           <CardDescription className="text-base">
-            Preencha as informações para gerar um novo atestado médico
+            Selecione o paciente e preencha as informações
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={onSubmit} ref={formRef} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
-              {/* Nome Completo */}
+              {/* Seleção de Paciente */}
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="pacient">Paciente</Label>
+                <Select
+                  value={selectedPacientId}
+                  onValueChange={setSelectedPacientId}
+                >
+                  <SelectTrigger className="h-11 w-full">
+                    <SelectValue placeholder="Selecione um paciente..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pacients?.map((pacient: any) => (
+                      <SelectItem key={pacient.id} value={pacient.id || ""}>
+                        {pacient.name} - CPF: {pacient.cpf}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!selectedPacientId && (
+                  <p className="text-sm text-muted-foreground">
+                    Selecione um paciente da lista ou digite o nome abaixo se
+                    não estiver cadastrado.
+                  </p>
+                )}
+              </div>
+
+              {/* Nome (Fallback ou Manual) */}
               <div className="md:col-span-2">
                 <FormInput
                   id="name"
-                  label="Nome do Paciente"
+                  label="Nome do Paciente (Confirmar)"
                   type="text"
-                  placeholder="Digite o nome completo"
+                  placeholder="Nome do paciente"
+                  defaultValue={
+                    pacients?.find((p) => p.id === selectedPacientId)?.name ||
+                    ""
+                  }
                   errors={fieldErrors}
                   required
                   className="h-11"

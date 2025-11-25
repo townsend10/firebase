@@ -35,18 +35,22 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     );
     user = createNewUser.user;
 
-    const imageRef = ref(storage, `images/${auth.currentUser?.uid}/profile.jpg`); // Defina um caminho apropriado
-    await uploadBytes(imageRef, imageFile); // imageFile deve ser um Blob ou File
-  
+    const imageRef = ref(
+      storage,
+      `images/${auth.currentUser?.uid}/profile.jpg`
+    );
+    await uploadBytes(imageRef, imageFile);
+
     const imageUrl = await getDownloadURL(imageRef);
 
     const token = await user.getIdToken();
 
     await addDoc(collection(db, "users"), {
       name: name,
-
       phone: phone,
       imageUrl: imageUrl,
+      role: "guest", // Default role: 'guest' or 'admin'
+      createdAt: new Date().toISOString(),
     });
 
     return { data: user, token: token };

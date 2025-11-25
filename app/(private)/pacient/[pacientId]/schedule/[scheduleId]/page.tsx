@@ -7,18 +7,13 @@ import { useRouter } from "next/navigation";
 
 const ScheduleIdPage = () => {
   const { currentUser } = getAuth(firebaseApp);
-
   const router = useRouter();
 
   if (!currentUser) {
     router.push("/");
   }
 
-  return (
-    <div>
-      <ScheduleInfo />
-    </div>
-  );
+  return <ScheduleInfo />;
 };
 
 export default ScheduleIdPage;
