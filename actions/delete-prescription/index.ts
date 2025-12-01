@@ -50,11 +50,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
   const { id } = data;
-  let prescription;
   try {
     await deleteDoc(doc(db, "prescriptions", id));
 
-    return { data: prescription };
+    return { data: { id } };
   } catch (error) {
     console.error("Erro ao deletar agendamento:", error);
 

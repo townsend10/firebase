@@ -1,6 +1,7 @@
 "use client";
 
 import { getAllPrescriptions } from "@/actions/get-all-prescriptions";
+import { deletePrescription } from "@/actions/delete-prescription";
 import { useAction } from "@/hooks/use-action";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   FileText,
   Calendar,
   ClockIcon,
   Printer,
   Search,
   User,
+  Trash2,
 } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { toast } from "sonner";
@@ -44,6 +57,34 @@ export function AllPrescriptionsList() {
       console.error(error);
     },
   });
+
+  const { execute: executeDelete, isLoading: isDeleting } = useAction(
+    deletePrescription,
+    {
+      onSuccess: (data) => {
+        toast.success("Atestado deletado com sucesso");
+        // Remove from local state using the returned ID
+        if (data?.id) {
+          setPrescriptions((prev) => prev.filter((p) => p.id !== data.id));
+          setFilteredPrescriptions((prev) =>
+            prev.filter((p) => p.id !== data.id)
+          );
+        }
+        setDeletedId(null);
+      },
+      onError: (error) => {
+        toast.error(error);
+        setDeletedId(null);
+      },
+    }
+  );
+
+  const [deletedId, setDeletedId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => {
+    setDeletedId(id);
+    executeDelete({ id });
+  };
 
   useEffect(() => {
     execute({});
@@ -109,6 +150,8 @@ export function AllPrescriptionsList() {
               <PrescriptionCard
                 key={prescription.id}
                 prescription={prescription}
+                onDelete={handleDelete}
+                isDeleting={isDeleting && deletedId === prescription.id}
               />
             ))}
           </div>
@@ -132,7 +175,15 @@ export function AllPrescriptionsList() {
   );
 }
 
-function PrescriptionCard({ prescription }: { prescription: Prescription }) {
+function PrescriptionCard({
+  prescription,
+  onDelete,
+  isDeleting,
+}: {
+  prescription: Prescription;
+  onDelete: (id: string) => void;
+  isDeleting: boolean;
+}) {
   // Better handling for converting Firestore Timestamp to Date
   let formattedDate = "Data não disponível";
 
@@ -285,7 +336,7 @@ function PrescriptionCard({ prescription }: { prescription: Prescription }) {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
+    <Card className="hover:shadow-lg transition-shadow flex flex-col h-full relative group">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -319,11 +370,50 @@ function PrescriptionCard({ prescription }: { prescription: Prescription }) {
           )}
         </div>
 
-        <div className="pt-2">
-          <Button variant="outline" className="w-full" onClick={handlePrint}>
+        <div className="pt-2 flex gap-2">
+          <Button
+            variant="outline"
+            className="w-full flex-1"
+            onClick={handlePrint}
+          >
             <Printer className="mr-2 h-4 w-4" />
-            Imprimir Atestado
+            Imprimir
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="shrink-0"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <LoadingSpinner className="h-4 w-4 text-white" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. Isso excluirá permanentemente
+                  o atestado de <strong>{prescription.name}</strong> do sistema.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(prescription.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Confirmar Exclusão
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>
