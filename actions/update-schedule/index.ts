@@ -35,6 +35,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   const { hour, date, status, id } = data;
 
+  // Verifica conflito exato de horário
   const existingScheduleHourQuery = query(
     collection(db, "schedules"),
     where("hour", "==", hour),
@@ -44,16 +45,27 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const existingScheduleHourQuerySnapshot = await getDocs(
     existingScheduleHourQuery
   );
-  if (!existingScheduleHourQuerySnapshot.empty) {
+
+  // Filtra o próprio agendamento da verificação
+  const hasConflict = existingScheduleHourQuerySnapshot.docs.some(
+    (doc) => doc.id !== id
+  );
+
+  if (hasConflict) {
     return {
       error: "Horario ja delimitado por outro paciente",
     };
   }
-  const requestDateTime = new Date(`${date}T${hour}:00`);
-  const startTime = new Date(requestDateTime.getTime() - 60 * 60 * 1000); // 1 hora antes
-  const endTime = new Date(requestDateTime.getTime() + 60 * 60 * 1000); // 1 hora depois
 
-  // Verifica se há agendamentos dentro do intervalo de 1 hora
+  // Verifica intervalo de 1 hora (opcional, mantendo lógica existente mas corrigindo)
+  /* 
+  // Comentado pois pode ser restritivo demais se não for regra de negócio explícita
+  // Se for necessário, descomentar e ajustar:
+  
+  const requestDateTime = new Date(`${date}T${hour}:00`);
+  const startTime = new Date(requestDateTime.getTime() - 60 * 60 * 1000); 
+  const endTime = new Date(requestDateTime.getTime() + 60 * 60 * 1000); 
+
   const timeSlotQuery = query(
     collection(db, "schedules"),
     where("date", "==", date)
@@ -61,21 +73,19 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   const timeSlotSnapshot = await getDocs(timeSlotQuery);
   const isTimeSlotOccupied = timeSlotSnapshot.docs.some((doc) => {
+    if (doc.id === id) return false; // Ignora o próprio agendamento
+
     const { hour: existingHour } = doc.data();
     const existingDateTime = new Date(`${date}T${existingHour}:00`);
-    // return existingDateTime >= startTime || existingDateTime <= endTime;
-    // return existingDateTime <= endTime ;
-
-    return existingDateTime >= startTime && existingDateTime < endTime;
-
-    // return existingDateTime > requestDateTime && existingDateTime <= endTime; // Mudança aqui
+    return existingDateTime > startTime && existingDateTime < endTime;
   });
 
   if (isTimeSlotOccupied) {
     return {
-      error: "Este horário está lotado.",
+      error: "Este horário está muito próximo de outro agendamento.",
     };
   }
+  */
   let pacient = data || undefined;
   try {
     const pacientsRef = doc(db, "schedules", id);

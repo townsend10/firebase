@@ -1,39 +1,73 @@
 "use client";
 
+import { deleteSchedule } from "@/actions/delete-schedule";
 import { getSchedules } from "@/actions/get-schedules";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
 import {
-  Calendar,
-  Clock,
-  User,
-  CalendarPlus,
+  calculateScheduleStatus,
+  getCalculatedBadgeVariant,
+  getCalculatedStatusText,
+  getInitials,
+} from "@/lib/db-helpers";
+import {
   AlertCircle,
+  Calendar,
+  CalendarPlus,
   CheckCircle,
+  Clock,
   Clock10Icon,
+  Trash2,
+  User,
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import {
-  getInitials,
-  calculateScheduleStatus,
-  getCalculatedStatusText,
-  getCalculatedBadgeVariant,
-} from "@/lib/db-helpers";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export const ScheduleList = () => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: schedules, execute: getSchedulings } = useAction(getSchedules, {
     onSuccess: () => {},
     onError: (error) => {
       router.push("/");
+    },
+  });
+
+  const { execute: executeDelete } = useAction(deleteSchedule, {
+    onSuccess: () => {
+      toast.success("Agendamento excluído com sucesso");
+      // Recarregar a lista
+      getSchedulings({
+        date: "",
+        hour: "",
+        name: "",
+        status: "cancelled",
+        pacientId: "",
+      });
+      setIsDeleting(false);
+    },
+    onError: (error) => {
+      toast.error(error);
+      setIsDeleting(false);
     },
   });
 
@@ -51,8 +85,13 @@ export const ScheduleList = () => {
     return null;
   }
 
-  const onClick = (scheduleId: string, userId: string) => {
-    // router.push(`/pacient/${userId}/schedule/${scheduleId}`);
+  const onClick = (scheduleId: string) => {
+    router.push(`/schedule/${scheduleId}/edit`);
+  };
+
+  const handleDelete = (e: React.MouseEvent, scheduleId: string) => {
+    e.stopPropagation(); // Previne navegação ao clicar no delete
+    executeDelete({ id: scheduleId });
   };
 
   // Empty state
@@ -127,10 +166,8 @@ export const ScheduleList = () => {
             return (
               <Card
                 key={schedule.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => {
-                  onClick(schedule.id, schedule.pacientId);
-                }}
+                className="hover:shadow-lg transition-shadow cursor-pointer group relative"
+                onClick={() => onClick(schedule.id)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -150,6 +187,44 @@ export const ScheduleList = () => {
                         </Badge>
                       </div>
                     </div>
+
+                    {/* Botão de Delete */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Excluir Agendamento?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir este agendamento?
+                            Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Cancelar
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={(e) => handleDelete(e, schedule.id)}
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">

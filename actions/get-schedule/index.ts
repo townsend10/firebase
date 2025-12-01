@@ -39,30 +39,27 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   try {
     const schedulingRef = doc(db, "schedules", id);
     const docSnap = await getDoc(schedulingRef);
-    const schedulesCollection = collection(db, "schedules");
-    const q = query(schedulesCollection, where("status", "!=", "cancelled")); // Adicione este filtro
 
-    const querySnapshot = await getDocs(q);
-    const schedules = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
     if (docSnap.exists()) {
-      const { date, hour, status } = docSnap.data();
-      console.log("ID:", docSnap.id);
-      data = {
-        date,
-        hour,
-        id,
-        status,
+      const scheduleData = docSnap.data();
+
+      // Retornar os dados do agendamento
+      return {
+        data: {
+          id: docSnap.id,
+          date: scheduleData.date,
+          hour: scheduleData.hour,
+          status: scheduleData.status,
+          pacientId: scheduleData.pacientId,
+        },
       };
     } else {
-      console.log("No such document!");
+      return {
+        error: "Agendamento não encontrado",
+      };
     }
-
-    return { data: data };
   } catch (error) {
-    console.error("Erro durante a recuperação de pacientes:", error);
+    console.error("Erro ao buscar agendamento:", error);
 
     return {
       error: `${error}`,
