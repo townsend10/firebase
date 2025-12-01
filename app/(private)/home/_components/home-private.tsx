@@ -46,7 +46,7 @@ export const HomePrivate = () => {
 
             {/* Card 2 */}
             <div
-              onClick={() => router.push("/pacient")}
+              onClick={() => router.push("/list")}
               className="group flex flex-col items-center text-center p-8 bg-card rounded-xl shadow-sm border hover:shadow-md transition-all cursor-pointer hover:-translate-y-1"
             >
               <div className="p-4 bg-green-100 dark:bg-green-900/20 rounded-full mb-6 group-hover:scale-110 transition-transform">

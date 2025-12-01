@@ -1,6 +1,5 @@
 "use client";
 
-import { getPacients } from "@/actions/get-pacients";
 import { getSchedules } from "@/actions/get-schedules";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,8 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAction } from "@/hooks/use-action";
 import { useAuth } from "@/hooks/use-current-user";
-import { Pacient } from "@/types";
-import { DocumentData } from "firebase/firestore";
 import {
   Calendar,
   Clock,
@@ -18,20 +15,18 @@ import {
   AlertCircle,
   CheckCircle,
   Clock10Icon,
+  XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
-  getScheduleStatusText,
-  getScheduleBadgeVariant,
   getInitials,
+  calculateScheduleStatus,
+  getCalculatedStatusText,
+  getCalculatedBadgeVariant,
 } from "@/lib/db-helpers";
 
-interface ListPacientProps {
-  pacientMedicData: Pacient;
-}
-
-export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
+export const ScheduleList = () => {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
@@ -42,22 +37,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
     },
   });
 
-  const { data: pacients, execute: getPacientsData } = useAction(getPacients, {
-    onSuccess: () => {},
-    onError: (error) => {
-      router.push("/");
-    },
-  });
-
   useEffect(() => {
-    getPacientsData({
-      birthdayDate: "",
-      cpf: "",
-      email: "",
-      name: "",
-      phone: "",
-    });
-
     getSchedulings({
       date: "",
       hour: "",
@@ -65,14 +45,14 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
       status: "cancelled",
       pacientId: "",
     });
-  }, [getPacientsData, getSchedulings]);
+  }, [getSchedulings]);
 
   if (!isLoggedIn) {
     return null;
   }
 
-  const onClick = (scheduleId: string, pacientId: string) => {
-    router.push(`/pacient/${pacientId}/schedule/${scheduleId}`);
+  const onClick = (scheduleId: string, userId: string) => {
+    // router.push(`/pacient/${userId}/schedule/${scheduleId}`);
   };
 
   // Empty state
@@ -90,7 +70,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
           </p>
           <Button
             size="lg"
-            onClick={() => router.push("/pacient")}
+            onClick={() => router.push("/list")}
             className="mt-4"
           >
             <User className="mr-2 h-5 w-5" />
@@ -113,7 +93,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
               cadastrado{schedules.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <Button onClick={() => router.push("/pacient")}>
+          <Button onClick={() => router.push("/list")}>
             <CalendarPlus className="mr-2 h-4 w-4" />
             Novo Agendamento
           </Button>
@@ -124,20 +104,22 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
           {schedules?.map((schedule) => {
             const formtData = new Date(schedule.date);
 
-            // Usar helpers para obter status e variante
-            const statusText = getScheduleStatusText(schedule);
-            const badgeVariant = getScheduleBadgeVariant(schedule);
+            // Usar helpers para calcular status automaticamente
+            const calculatedStatus = calculateScheduleStatus(schedule);
+            const statusText = getCalculatedStatusText(schedule);
+            const badgeVariant = getCalculatedBadgeVariant(schedule);
 
             // Nome do paciente já vem do servidor
             const pacientName =
               (schedule as any).pacientName || "Paciente não encontrado";
             const initials = getInitials(pacientName);
 
-            // Ícone baseado na variante do badge
             const getStatusIcon = () => {
-              if (badgeVariant === "destructive")
+              if (calculatedStatus === "no-show")
+                return <XCircle className="mr-1 h-3 w-3" />;
+              if (calculatedStatus === "cancelled")
                 return <Clock10Icon className="mr-1 h-3 w-3" />;
-              if (schedule.status === "confirm")
+              if (calculatedStatus === "confirm")
                 return <CheckCircle className="mr-1 h-3 w-3" />;
               return <AlertCircle className="mr-1 h-3 w-3" />;
             };

@@ -6,9 +6,7 @@ export const CreateSchedule = z.object({
   hour: z.string({
     required_error: "Defina uma hora",
   }),
-  status: z.enum(["confirm", "cancelled", "waiting", "none"], {
-    required_error: "Defina um status",
-  }),
+  status: z.enum(["confirm", "cancelled", "waiting", "none"]).optional(), // Opcional, será calculado automaticamente
   userId: z.string().optional(), // For tracking who created the appointment
   userRole: z.enum(["admin", "guest"]).optional(), // For validation rules
 });

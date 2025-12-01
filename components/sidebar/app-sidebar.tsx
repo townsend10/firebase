@@ -151,20 +151,7 @@ export function AppSidebar() {
       },
 
       // Admin-only items
-      {
-        href: "/pacient",
-        label: "Pacientes",
-        icon: <Users className="h-4 w-4" />,
-        roles: ["admin"],
-        section: "Administração",
-      },
-      {
-        href: "/medicalCare",
-        label: "Cadastrar Paciente",
-        icon: <UserCog className="h-4 w-4" />,
-        roles: ["admin"],
-        section: "Administração",
-      },
+   
       {
         href: "/schedules",
         label: "Todos Agendamentos",

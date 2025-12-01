@@ -10,17 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { useAction } from "@/hooks/use-action";
 import { useUserRole } from "@/hooks/use-user-role";
-import { CalendarPlus, Clock, Save } from "lucide-react";
+import { CalendarPlus, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,7 +21,6 @@ export function BookAppointmentForm() {
   const router = useRouter();
   const { userId, role } = useUserRole();
   const [time, setTime] = useState("");
-  const [status, setStatus] = useState("waiting");
 
   const { execute, fieldErrors } = useAction(createSchedule, {
     onSuccess: (data) => {
@@ -78,7 +69,6 @@ export function BookAppointmentForm() {
       date: dateString,
       hour: hourString,
       pacientId: userId,
-      status: status as "confirm" | "cancelled" | "waiting" | "none",
       userId: userId,
       userRole: role || "guest",
     });
@@ -133,25 +123,6 @@ export function BookAppointmentForm() {
                   onChange={handleChange}
                   className="h-11"
                 />
-              </div>
-
-              {/* Status */}
-              <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="status" className="text-sm font-medium">
-                  Status do Agendamento
-                  <span className="text-destructive ml-1">*</span>
-                </Label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Selecione um status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="waiting">
-                      Aguardando Confirmação
-                    </SelectItem>
-                    <SelectItem value="confirm">Confirmado</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
 

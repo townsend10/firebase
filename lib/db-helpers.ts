@@ -275,3 +275,83 @@ export function groupSchedulesByPacient(
     return acc;
   }, {});
 }
+
+// ============================================================================
+// AUTOMATIC STATUS CALCULATION
+// ============================================================================
+
+/**
+ * Calcula o status do agendamento automaticamente baseado na data/hora
+ * Regras:
+ * - Se foi cancelado manualmente: "cancelled"
+ * - Se foi confirmado manualmente: "confirm"
+ * - Se a data/hora já passou: "no-show" (não compareceu)
+ * - Se a data/hora ainda não passou: "waiting" (aguardando)
+ */
+export function calculateScheduleStatus(
+  schedule: Schedule | DocumentData
+): "waiting" | "confirm" | "cancelled" | "no-show" {
+  // Se foi cancelado ou confirmado manualmente, manter o status
+  if (schedule.status === "cancelled") {
+    return "cancelled";
+  }
+
+  if (schedule.status === "confirm") {
+    return "confirm";
+  }
+
+  // Combinar data e hora para verificar se já passou
+  const scheduleDateTime = new Date(`${schedule.date}T${schedule.hour}`);
+  const now = new Date();
+
+  // Se a data/hora já passou, marcar como "não compareceu"
+  if (scheduleDateTime < now) {
+    return "no-show";
+  }
+
+  // Se ainda não passou, está aguardando
+  return "waiting";
+}
+
+/**
+ * Retorna o texto do status calculado automaticamente
+ */
+export function getCalculatedStatusText(
+  schedule: Schedule | DocumentData
+): string {
+  const status = calculateScheduleStatus(schedule);
+
+  switch (status) {
+    case "confirm":
+      return "Confirmado";
+    case "cancelled":
+      return "Cancelado";
+    case "no-show":
+      return "Não Compareceu";
+    case "waiting":
+      return "Aguardando";
+    default:
+      return "Desconhecido";
+  }
+}
+
+/**
+ * Retorna a variante do badge baseado no status calculado
+ */
+export function getCalculatedBadgeVariant(
+  schedule: Schedule | DocumentData
+): "default" | "secondary" | "destructive" {
+  const status = calculateScheduleStatus(schedule);
+
+  switch (status) {
+    case "confirm":
+      return "default";
+    case "cancelled":
+    case "no-show":
+      return "destructive";
+    case "waiting":
+      return "secondary";
+    default:
+      return "secondary";
+  }
+}
