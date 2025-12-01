@@ -4,6 +4,7 @@ import { createUser } from "@/actions/create-user";
 import { googleSign } from "@/actions/google-sign";
 import { FormInput } from "@/components/form/form-input";
 import { PhoneInput } from "@/components/phone-input";
+import { CpfInput } from "@/components/cpf-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
@@ -56,9 +57,10 @@ export const RegisterModal = () => {
     const password = formData.get("password") as string;
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
+    const cpf = formData.get("cpf") as string;
     const imageFile = formData.get("imageFile") as any;
 
-    loginWithEmail({ email, password, name, phone, imageFile });
+    loginWithEmail({ email, password, name, phone, imageFile, cpf });
   };
 
   const GoogleLogin = async () => {
@@ -132,6 +134,15 @@ export const RegisterModal = () => {
                   type="tel"
                   className="bg-background h-12 text-lg"
                   placeholder="Seu telefone"
+                  errors={EmailErrors}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <CpfInput
+                  id="cpf"
+                  className="bg-background h-12 text-lg"
+                  placeholder="Seu CPF (opcional)"
                   errors={EmailErrors}
                 />
               </div>

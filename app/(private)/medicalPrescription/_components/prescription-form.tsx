@@ -1,7 +1,7 @@
 "use client";
 
 import { createMedicalPrescription } from "@/actions/create-medical-prescription";
-import { getPacients } from "@/actions/get-pacients";
+import { getGuests } from "@/actions/get-guests";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,22 +28,22 @@ import { toast } from "sonner";
 export const PrescriptionForm = () => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [selectedPacientId, setSelectedPacientId] = useState<string>("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
-  // Fetch patients
-  const { data: pacients, execute: fetchPacients } = useAction(getPacients, {
-    onError: (error) => toast.error("Erro ao carregar pacientes"),
+  // Fetch guests (users)
+  const { data: guests, execute: fetchGuests } = useAction(getGuests, {
+    onError: (error) => toast.error("Erro ao carregar usuários"),
   });
 
   useEffect(() => {
-    fetchPacients({
+    fetchGuests({
       birthdayDate: "",
       cpf: "",
       name: "",
       email: "",
       phone: "",
     });
-  }, [fetchPacients]);
+  }, [fetchGuests]);
 
   const { execute, fieldErrors } = useAction(createMedicalPrescription, {
     onSuccess: (data) => {
@@ -51,8 +51,8 @@ export const PrescriptionForm = () => {
       if (formRef.current) {
         formRef.current.reset();
       }
-      setSelectedPacientId("");
-      router.push("/pacientPrescription");
+      setSelectedUserId("");
+      router.push("/prescriptions");
     },
     onError: (error) => {
       toast.error(error);
@@ -60,9 +60,11 @@ export const PrescriptionForm = () => {
   });
 
   const onSubmit = (formData: FormData) => {
-    // Find selected patient name
-    const selectedPacient = pacients?.find((p) => p.id === selectedPacientId);
-    const name = selectedPacient?.name || (formData.get("name") as string);
+    // Find selected user name
+    const selectedUser = guests?.find(
+      (p) => p.uid === selectedUserId || p.id === selectedUserId
+    );
+    const name = selectedUser?.name || (formData.get("name") as string);
 
     const dateString = formData.get("date") as string;
     const daysString = formData.get("days") as string;
@@ -84,7 +86,7 @@ export const PrescriptionForm = () => {
       date,
       name,
       days,
-      pacientId: selectedPacientId, // Pass selected patient ID
+      userId: selectedUserId, // Pass selected user ID
     });
   };
 
@@ -101,31 +103,34 @@ export const PrescriptionForm = () => {
             </CardTitle>
           </div>
           <CardDescription className="text-base">
-            Selecione o paciente e preencha as informações
+            Selecione o usuário e preencha as informações
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={onSubmit} ref={formRef} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
-              {/* Seleção de Paciente */}
+              {/* Seleção de Usuário */}
               <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="pacient">Paciente</Label>
+                <Label htmlFor="user">Paciente (Usuário)</Label>
                 <Select
-                  value={selectedPacientId}
-                  onValueChange={setSelectedPacientId}
+                  value={selectedUserId}
+                  onValueChange={setSelectedUserId}
                 >
                   <SelectTrigger className="h-11 w-full">
                     <SelectValue placeholder="Selecione um paciente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {pacients?.map((pacient: any) => (
-                      <SelectItem key={pacient.id} value={pacient.id || ""}>
-                        {pacient.name} - CPF: {pacient.cpf}
+                    {guests?.map((guest: any) => (
+                      <SelectItem key={guest.id} value={guest.uid || guest.id}>
+                        {guest.name}
+                        {guest.cpf
+                          ? ` - CPF: ${guest.cpf}`
+                          : ` - ${guest.email || "Sem identificação"}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {!selectedPacientId && (
+                {!selectedUserId && (
                   <p className="text-sm text-muted-foreground">
                     Selecione um paciente da lista ou digite o nome abaixo se
                     não estiver cadastrado.
@@ -141,8 +146,9 @@ export const PrescriptionForm = () => {
                   type="text"
                   placeholder="Nome do paciente"
                   defaultValue={
-                    pacients?.find((p) => p.id === selectedPacientId)?.name ||
-                    ""
+                    guests?.find(
+                      (p) => p.uid === selectedUserId || p.id === selectedUserId
+                    )?.name || ""
                   }
                   errors={fieldErrors}
                   required

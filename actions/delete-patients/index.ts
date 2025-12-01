@@ -5,12 +5,12 @@ import { createSafeAction } from "@/lib/create-safe-action";
 import { getAuth } from "firebase/auth";
 import {
   collection,
-  deleteDoc,
   doc,
   getDocs,
   getFirestore,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { DeletePatients } from "./schema";
 import { ReturnType, InputType } from "./types";
@@ -26,28 +26,56 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
-  console.log("CURRENTUSER" + currentUser);
-
   if (!auth) {
     return {
       error: "Erro ao inicializar o firebase",
     };
   }
   const { id } = data;
-  const scheduleId = collection(db, "schedule");
-  const q = query(scheduleId, where("pacientId", "==", id));
+  const schedulesRef = collection(db, "schedules");
+  const q = query(schedulesRef, where("pacientId", "==", id));
 
-  let pacients;
   try {
     const querySnapshot = await getDocs(q);
-    const docSchedule = querySnapshot.docs[0];
+    const docs = querySnapshot.docs;
 
-    await deleteDoc(doc(db, "pacient", id));
-    await deleteDoc(doc(db, "schedule", docSchedule.id));
+    // Firestore batch limit is 500 operations
+    const CHUNK_SIZE = 500;
+    const chunks = [];
 
-    return { data: pacients };
+    for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
+      chunks.push(docs.slice(i, i + CHUNK_SIZE));
+    }
+
+    // If no schedules, we still need to delete the user
+    if (chunks.length === 0) {
+      const batch = writeBatch(db);
+      const userRef = doc(db, "users", id);
+      batch.delete(userRef);
+      await batch.commit();
+    } else {
+      // Process chunks
+      for (let i = 0; i < chunks.length; i++) {
+        const batch = writeBatch(db);
+        const chunk = chunks[i];
+
+        chunk.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+
+        // Delete the user in the last batch
+        if (i === chunks.length - 1) {
+          const userRef = doc(db, "users", id);
+          batch.delete(userRef);
+        }
+
+        await batch.commit();
+      }
+    }
+
+    return { data: undefined };
   } catch (error) {
-    console.error("Erro ao deletar os pacientes ão de pacientes:", error);
+    console.error("Erro ao deletar os pacientes:", error);
 
     return {
       error: `${error}`,

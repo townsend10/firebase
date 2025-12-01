@@ -24,11 +24,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
   const { id } = data;
-  let schedule;
   try {
-    await deleteDoc(doc(db, "schedule", id));
+    await deleteDoc(doc(db, "schedules", id));
 
-    return { data: schedule };
+    return { data: undefined };
   } catch (error) {
     console.error("Erro ao deletar agendamento:", error);
 

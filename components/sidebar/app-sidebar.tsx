@@ -180,7 +180,7 @@ export function AppSidebar() {
         section: "Administração",
       },
       {
-        href: "/pacientPrescription",
+        href: "/prescriptions",
         label: "Todos Atestados",
         icon: <ClipboardList className="h-4 w-4" />,
         roles: ["admin"],

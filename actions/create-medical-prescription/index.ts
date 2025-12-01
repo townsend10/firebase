@@ -32,6 +32,24 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     };
   }
 
+  // Verificar se é admin
+  const userDoc = await getDocs(
+    query(collection(db, "users"), where("uid", "==", currentUser.uid))
+  );
+
+  if (userDoc.empty) {
+    return {
+      error: "Usuário não encontrado",
+    };
+  }
+
+  const userData = userDoc.docs[0].data();
+  if (userData.role !== "admin") {
+    return {
+      error: "Apenas administradores podem criar atestados",
+    };
+  }
+
   const { name, date, days } = data;
 
   let prescriptions = data || undefined;
@@ -51,7 +69,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         minute: "2-digit",
       })} e recebeu ${data.days} dias de repouso médico.`,
       days: days,
-      pacientId: data.pacientId, // Save linked patient ID
+      userId: data.userId, // Save linked user ID
       created_at: new Date().toISOString(),
     });
 

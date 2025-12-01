@@ -23,6 +23,12 @@ import {
   CalendarPlus,
 } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import {
+  filterActiveSchedules,
+  filterPastSchedules,
+  canCreateNewSchedule,
+  isAdmin,
+} from "@/lib/db-helpers";
 
 interface Appointment {
   id: string;
@@ -33,7 +39,7 @@ interface Appointment {
 }
 
 export function MyAppointmentsList() {
-  const { userId, role, loading } = useUserRole();
+  const { userId, role, loading, userData } = useUserRole();
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(true);
@@ -66,21 +72,14 @@ export function MyAppointmentsList() {
     return <LoadingSpinner text="Carregando agendamentos..." />;
   }
 
-  const activeAppointments = appointments.filter((apt) => {
-    const aptDate = new Date(apt.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return aptDate >= today && apt.status !== "cancelled";
-  });
+  // Usar helpers para filtrar agendamentos
+  const activeAppointments = filterActiveSchedules(appointments);
+  const pastAppointments = filterPastSchedules(appointments);
 
-  const pastAppointments = appointments.filter((apt) => {
-    const aptDate = new Date(apt.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return aptDate < today || apt.status === "cancelled";
-  });
-
-  const canBookNew = role === "admin" || activeAppointments.length === 0;
+  // Verificar se pode criar novo agendamento usando helper
+  const canBookNew = userData
+    ? isAdmin(userData) || canCreateNewSchedule(userData, appointments).allowed
+    : false;
 
   return (
     <div className="flex-1 space-y-6 p-6 md:p-8">

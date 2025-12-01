@@ -1,21 +1,22 @@
 "use client";
 
-import { useUserRole } from "@/hooks/use-user-role";
-import { useRouter } from "next/navigation";
+import { getAllPrescriptions } from "@/actions/get-all-prescriptions";
+import { useAction } from "@/hooks/use-action";
 import { useEffect, useState } from "react";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, ClockIcon, Printer } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  FileText,
+  Calendar,
+  ClockIcon,
+  Printer,
+  Search,
+  User,
+} from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { toast } from "sonner";
 
 interface Prescription {
   id: string;
@@ -26,45 +27,47 @@ interface Prescription {
   userId?: string;
 }
 
-export function MyPrescriptionsList() {
-  const { userId, loading } = useUserRole();
-  const router = useRouter();
+export function AllPrescriptionsList() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-  const [loadingPrescriptions, setLoadingPrescriptions] = useState(true);
+  const [filteredPrescriptions, setFilteredPrescriptions] = useState<
+    Prescription[]
+  >([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const { data, execute, isLoading } = useAction(getAllPrescriptions, {
+    onSuccess: (data) => {
+      setPrescriptions(data);
+      setFilteredPrescriptions(data);
+    },
+    onError: (error) => {
+      toast.error("Erro ao carregar atestados");
+      console.error(error);
+    },
+  });
 
   useEffect(() => {
-    const fetchMyPrescriptions = async () => {
-      if (!userId) return;
+    execute({});
+  }, [execute]);
 
-      console.log("Buscando atestados para userId:", userId);
-      const db = getFirestore(firebaseApp);
-      const prescriptionsRef = collection(db, "prescriptions");
-
-      // Query prescriptions where userId matches userId
-      const q = query(prescriptionsRef, where("userId", "==", userId));
-
-      try {
-        const querySnapshot = await getDocs(q);
-        console.log("Atestados encontrados:", querySnapshot.size);
-
-        const prescriptionsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Prescription[];
-
-        setPrescriptions(prescriptionsData);
-      } catch (error) {
-        console.error("Erro ao buscar atestados:", error);
-      }
-      setLoadingPrescriptions(false);
-    };
-
-    if (userId) {
-      fetchMyPrescriptions();
+  // Filter prescriptions based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredPrescriptions(prescriptions);
+      return;
     }
-  }, [userId]);
 
-  if (loading || loadingPrescriptions) {
+    const filtered = prescriptions.filter((prescription) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        prescription.name?.toLowerCase().includes(searchLower) ||
+        prescription.userId?.toLowerCase().includes(searchLower)
+      );
+    });
+
+    setFilteredPrescriptions(filtered);
+  }, [searchTerm, prescriptions]);
+
+  if (isLoading) {
     return <LoadingSpinner text="Carregando atestados..." />;
   }
 
@@ -75,19 +78,34 @@ export function MyPrescriptionsList() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Meus Atestados
+              Todos os Atestados
             </h1>
             <p className="text-muted-foreground mt-1">
-              {prescriptions.length} atestado
-              {prescriptions.length !== 1 ? "s" : ""} no total
+              {filteredPrescriptions.length} atestado
+              {filteredPrescriptions.length !== 1 ? "s" : ""} encontrado
+              {filteredPrescriptions.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Buscar por nome do paciente ou ID do usuário..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-11"
+            />
+          </div>
+        </div>
+
         {/* Prescriptions Grid */}
-        {prescriptions.length > 0 ? (
+        {filteredPrescriptions.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {prescriptions.map((prescription) => (
+            {filteredPrescriptions.map((prescription) => (
               <PrescriptionCard
                 key={prescription.id}
                 prescription={prescription}
@@ -97,9 +115,15 @@ export function MyPrescriptionsList() {
         ) : (
           <div className="text-center py-12">
             <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum atestado</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {searchTerm
+                ? "Nenhum atestado encontrado"
+                : "Nenhum atestado cadastrado"}
+            </h3>
             <p className="text-muted-foreground mb-4">
-              Você ainda não possui atestados médicos emitidos em seu nome.
+              {searchTerm
+                ? "Tente buscar com outros termos."
+                : "Ainda não há atestados médicos emitidos no sistema."}
             </p>
           </div>
         )}
@@ -109,21 +133,21 @@ export function MyPrescriptionsList() {
 }
 
 function PrescriptionCard({ prescription }: { prescription: Prescription }) {
-  // Melhor tratamento para converter Timestamp do Firestore para Date
+  // Better handling for converting Firestore Timestamp to Date
   let formattedDate = "Data não disponível";
 
   try {
     if (prescription.date) {
-      // Se for um Timestamp do Firestore com método toDate
+      // If it's a Firestore Timestamp with toDate method
       if (typeof prescription.date.toDate === "function") {
         formattedDate = prescription.date.toDate().toLocaleDateString("pt-BR");
       }
-      // Se for um objeto com seconds (Firestore Timestamp serializado)
+      // If it's an object with seconds (serialized Firestore Timestamp)
       else if (prescription.date.seconds) {
         const date = new Date(prescription.date.seconds * 1000);
         formattedDate = date.toLocaleDateString("pt-BR");
       }
-      // Se já for uma Date
+      // If it's already a Date
       else if (prescription.date instanceof Date) {
         formattedDate = prescription.date.toLocaleDateString("pt-BR");
       }
@@ -285,6 +309,14 @@ function PrescriptionCard({ prescription }: { prescription: Prescription }) {
             <ClockIcon className="h-4 w-4" />
             <span>Afastamento: {prescription.days} dias</span>
           </div>
+          {prescription.userId && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="h-4 w-4" />
+              <span className="truncate" title={prescription.userId}>
+                ID: {prescription.userId.substring(0, 8)}...
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="pt-2">

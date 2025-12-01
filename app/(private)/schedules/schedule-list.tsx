@@ -21,6 +21,11 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import {
+  getScheduleStatusText,
+  getScheduleBadgeVariant,
+  getInitials,
+} from "@/lib/db-helpers";
 
 interface ListPacientProps {
   pacientMedicData: Pacient;
@@ -66,7 +71,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
     return null;
   }
 
-  const onClick = (scheduleId: string, pacientId: DocumentData) => {
+  const onClick = (scheduleId: string, pacientId: string) => {
     router.push(`/pacient/${pacientId}/schedule/${scheduleId}`);
   };
 
@@ -118,49 +123,22 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {schedules?.map((schedule) => {
             const formtData = new Date(schedule.date);
-            const scheduleDate = new Date(schedule.date.replace(/-/g, "/"));
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
 
-            // Determinar status
-            const isOverdue = scheduleDate.getTime() < today.getTime();
-            const isConfirmed = schedule.status === "confirm";
-            const statusText = isOverdue
-              ? "Atrasado"
-              : isConfirmed
-              ? "Confirmado"
-              : "Aguardando";
+            // Usar helpers para obter status e variante
+            const statusText = getScheduleStatusText(schedule);
+            const badgeVariant = getScheduleBadgeVariant(schedule);
 
-            const findPacientName = pacients?.find(
-              (pacient) => pacient.id === schedule.pacientId
-            );
-
+            // Nome do paciente já vem do servidor
             const pacientName =
-              findPacientName?.name || "Paciente não encontrado";
-            const initials = pacientName
-              .split(" ")
-              .map((n: string) => n[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2);
+              (schedule as any).pacientName || "Paciente não encontrado";
+            const initials = getInitials(pacientName);
 
-            const pacientForSchedule = pacients?.filter(
-              (pacient) => pacient.id === schedule.pacientId
-            );
-            const scheduleIds = pacientForSchedule?.map(
-              (schedule: DocumentData) => schedule.id
-            );
-
-            // Badge variant baseado no status
-            const getBadgeVariant = () => {
-              if (isOverdue) return "destructive";
-              if (isConfirmed) return "default";
-              return "secondary";
-            };
-
+            // Ícone baseado na variante do badge
             const getStatusIcon = () => {
-              if (isOverdue) return <Clock10Icon className="mr-1 h-3 w-3" />;
-              if (isConfirmed) return <CheckCircle className="mr-1 h-3 w-3" />;
+              if (badgeVariant === "destructive")
+                return <Clock10Icon className="mr-1 h-3 w-3" />;
+              if (schedule.status === "confirm")
+                return <CheckCircle className="mr-1 h-3 w-3" />;
               return <AlertCircle className="mr-1 h-3 w-3" />;
             };
 
@@ -169,9 +147,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
                 key={schedule.id}
                 className="hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => {
-                  if (scheduleIds) {
-                    onClick(schedule.id, scheduleIds);
-                  }
+                  onClick(schedule.id, schedule.pacientId);
                 }}
               >
                 <CardHeader className="pb-3">
@@ -186,7 +162,7 @@ export const ScheduleList = ({ pacientMedicData }: ListPacientProps) => {
                         <h3 className="font-semibold text-lg leading-none mb-1">
                           {pacientName}
                         </h3>
-                        <Badge variant={getBadgeVariant()} className="mt-1">
+                        <Badge variant={badgeVariant} className="mt-1">
                           {getStatusIcon()}
                           {statusText}
                         </Badge>

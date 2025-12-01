@@ -40,18 +40,18 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     // Check if user already exists in Firestore
     const userQuery = query(
       collection(db, "users"),
-      where("user.uid", "==", user.uid)
+      where("uid", "==", user.uid) // ✅ Buscar pelo uid correto
     );
     const userDocs = await getDocs(userQuery);
 
     // If user doesn't exist, create a new user document
     if (userDocs.empty) {
       await addDoc(collection(db, "users"), {
-        user: {
-          uid: user.uid,
-          name: user.displayName,
-          imageUrl: user.photoURL,
-        },
+        uid: user.uid, // ✅ Vincular com Firebase Auth
+        name: user.displayName || "Usuário",
+        email: user.email || "",
+        phone: user.phoneNumber || "",
+        imageUrl: user.photoURL || "",
         role: "guest", // Default role for new users
         createdAt: new Date().toISOString(),
       });

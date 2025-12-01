@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import "firebase/auth";
 import {
@@ -7,11 +7,14 @@ import {
   browserLocalPersistence,
   getAuth,
   setPersistence,
+  Auth,
 } from "firebase/auth";
 import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  getFirestore,
+  Firestore,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -24,18 +27,32 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
+// Initialize Firebase with singleton pattern to prevent re-initialization during hot reloads
+let firebaseApp: FirebaseApp;
+let db: Firestore;
+let auth: Auth;
 
-// Initialize Firestore with persistent cache (1 week = 604800000 ms)
-const db = initializeFirestore(firebaseApp, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
-    cacheSizeBytes: 100 * 1024 * 1024, // 100 MB cache size
-  }),
-});
+// Check if Firebase app is already initialized
+if (!getApps().length) {
+  // Initialize Firebase only if not already initialized
+  firebaseApp = initializeApp(firebaseConfig);
 
-const auth = getAuth(firebaseApp);
+  // Initialize Firestore with persistent cache (1 week = 604800000 ms)
+  db = initializeFirestore(firebaseApp, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+      cacheSizeBytes: 100 * 1024 * 1024, // 100 MB cache size
+    }),
+  });
+
+  auth = getAuth(firebaseApp);
+} else {
+  // Use existing Firebase app instance
+  firebaseApp = getApp();
+  auth = getAuth(firebaseApp);
+  // Note: Firestore instance is already initialized, we just need to import it
+  db = getFirestore(firebaseApp);
+}
 
 export const initializeAuth = async () => {
   try {

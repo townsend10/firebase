@@ -65,7 +65,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     description: "All schedules - admin only",
   },
   {
-    path: "/pacientPrescription",
+    path: "/prescriptions",
     allowedRoles: ["admin"],
     description: "All prescriptions - admin only",
   },

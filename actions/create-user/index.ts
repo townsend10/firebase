@@ -25,7 +25,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
 
   try {
-    const { email, password, name, phone, imageFile } = data;
+    const { email, password, name, phone, imageFile, cpf } = data;
     let user;
 
     const createNewUser = await createUserWithEmailAndPassword(
@@ -46,8 +46,11 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     const token = await user.getIdToken();
 
     await addDoc(collection(db, "users"), {
+      uid: user.uid, // ✅ Vincular com Firebase Auth
+      email: email, // ✅ Adicionar email
       name: name,
       phone: phone,
+      cpf: cpf || "", // Salvar CPF se existir
       imageUrl: imageUrl,
       role: "guest", // Default role: 'guest' or 'admin'
       createdAt: new Date().toISOString(),

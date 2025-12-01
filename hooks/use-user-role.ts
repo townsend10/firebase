@@ -10,13 +10,13 @@ import {
   query,
   where,
 } from "firebase/firestore";
-
-type UserRole = "admin" | "guest" | null;
+import { isPacient, isAdmin, UserRole, User } from "@/lib/db-helpers";
 
 export const useUserRole = () => {
-  const [role, setRole] = useState<UserRole>(null);
+  const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
     const auth = getAuth(firebaseApp);
@@ -29,14 +29,26 @@ export const useUserRole = () => {
         try {
           // Query Firestore to get user role
           const usersRef = collection(db, "users");
-          const q = query(usersRef, where("user.uid", "==", user.uid));
+          const q = query(usersRef, where("uid", "==", user.uid)); // ✅ Corrigido
           const querySnapshot = await getDocs(q);
 
           if (!querySnapshot.empty) {
-            const userData = querySnapshot.docs[0].data();
-            setRole((userData.role as UserRole) || "guest");
+            const data = querySnapshot.docs[0].data();
+            const userDoc: User = {
+              id: querySnapshot.docs[0].id,
+              name: data.name || "",
+              email: data.email || user.email || "",
+              role: (data.role as UserRole) || "guest",
+              phone: data.phone,
+              cpf: data.cpf,
+              birthdayDate: data.birthdayDate,
+              createdAt: data.createdAt || new Date().toISOString(),
+            };
+            setUserData(userDoc);
+            setRole(userDoc.role);
           } else {
             // If user not found in Firestore, default to guest
+            console.warn("User not found in Firestore, defaulting to guest");
             setRole("guest");
           }
         } catch (error) {
@@ -46,6 +58,7 @@ export const useUserRole = () => {
       } else {
         setRole(null);
         setUserId(null);
+        setUserData(null);
       }
 
       setLoading(false);
@@ -57,9 +70,11 @@ export const useUserRole = () => {
   return {
     role,
     userId,
+    userData,
     loading,
-    isAdmin: role === "admin",
-    isGuest: role === "guest",
+    isAdmin: userData ? isAdmin(userData) : false,
+    isPacient: userData ? isPacient(userData) : false,
+    isGuest: userData ? isPacient(userData) : false, // Alias para isPacient
     isAuthenticated: role !== null,
   };
 };

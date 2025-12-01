@@ -36,7 +36,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const { hour, date, status, id } = data;
 
   const existingScheduleHourQuery = query(
-    collection(db, "schedule"),
+    collection(db, "schedules"),
     where("hour", "==", hour),
     where("date", "==", date)
   );
@@ -55,7 +55,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
   // Verifica se há agendamentos dentro do intervalo de 1 hora
   const timeSlotQuery = query(
-    collection(db, "schedule"),
+    collection(db, "schedules"),
     where("date", "==", date)
   );
 
@@ -78,7 +78,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   }
   let pacient = data || undefined;
   try {
-    const pacientsRef = doc(db, "schedule", id);
+    const pacientsRef = doc(db, "schedules", id);
     await updateDoc(pacientsRef, {
       hour,
       date,

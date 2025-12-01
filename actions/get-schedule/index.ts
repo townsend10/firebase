@@ -37,9 +37,9 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const { id } = data;
 
   try {
-    const schedulingRef = doc(db, "schedule", id);
+    const schedulingRef = doc(db, "schedules", id);
     const docSnap = await getDoc(schedulingRef);
-    const schedulesCollection = collection(db, "schedule");
+    const schedulesCollection = collection(db, "schedules");
     const q = query(schedulesCollection, where("status", "!=", "cancelled")); // Adicione este filtro
 
     const querySnapshot = await getDocs(q);
