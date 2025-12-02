@@ -3,6 +3,7 @@ import { Input } from "./ui/input";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Label } from "./ui/label";
+import { FormErrors } from "./form/form-errors";
 
 interface CpfInputProps {
   id: string;
@@ -121,13 +122,13 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(
 
     return (
       <div className="space-y-2">
-        {label && (
-          <Label htmlFor={id} className="text-sm font-medium">
-            {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </Label>
-        )}
-        <div className="relative">
+        <div className="space-y-1">
+          {label ? (
+            <Label htmlFor={id} className="text-sm font-medium">
+              {label}
+              {required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+          ) : null}
           <Input
             onBlur={handleBlur}
             defaultValue={defaultValue}
@@ -151,24 +152,14 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(
             aria-describedby={`${id}-error`}
             maxLength={14} // 11 dígitos + 3 caracteres de formatação
           />
-          {isValid === false && (
-            <p className="text-xs text-destructive mt-1">CPF inválido</p>
-          )}
-          {isValid === true && (
-            <p className="text-xs text-green-600 mt-1">CPF válido</p>
-          )}
         </div>
-        {errors && errors[id] && (
-          <div
-            id={`${id}-error`}
-            aria-live="polite"
-            className="text-xs text-destructive mt-1"
-          >
-            {errors[id]?.map((error: string) => (
-              <p key={error}>{error}</p>
-            ))}
-          </div>
+        {isValid === false && (
+          <p className="text-xs text-destructive">CPF inválido</p>
         )}
+        {isValid === true && (
+          <p className="text-xs text-green-600">CPF válido</p>
+        )}
+        <FormErrors id={id} errors={errors} />
       </div>
     );
   }

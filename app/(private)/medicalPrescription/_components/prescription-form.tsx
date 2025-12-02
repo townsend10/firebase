@@ -24,6 +24,7 @@ import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { maskCpf } from "@/lib/mask-cpf";
 
 export const PrescriptionForm = () => {
   const router = useRouter();
@@ -124,7 +125,7 @@ export const PrescriptionForm = () => {
                       <SelectItem key={guest.id} value={guest.uid || guest.id}>
                         {guest.name}
                         {guest.cpf
-                          ? ` - CPF: ${guest.cpf}`
+                          ? ` - CPF: ${maskCpf(guest.cpf)}`
                           : ` - ${guest.email || "Sem identificação"}`}
                       </SelectItem>
                     ))}

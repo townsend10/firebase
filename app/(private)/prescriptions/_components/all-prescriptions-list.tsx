@@ -189,16 +189,24 @@ function PrescriptionCard({
 
   try {
     if (prescription.date) {
-      // If it's a Firestore Timestamp with toDate method
-      if (typeof prescription.date.toDate === "function") {
+      // Se for string (YYYY-MM-DD), adiciona hora para evitar problema de timezone
+      if (typeof prescription.date === "string") {
+        const date = new Date(prescription.date + "T12:00:00");
+        formattedDate = date.toLocaleDateString("pt-BR");
+      }
+      // Se for um Timestamp do Firestore com método toDate
+      else if (typeof prescription.date.toDate === "function") {
+        // Adiciona offset de fuso horário se necessário, ou confia no toDate()
+        // Geralmente toDate() retorna Date com hora exata. Se foi salvo como 00:00 UTC, pode dar problema.
+        // Vamos assumir que se for Timestamp, está correto, mas se der problema, podemos ajustar.
         formattedDate = prescription.date.toDate().toLocaleDateString("pt-BR");
       }
-      // If it's an object with seconds (serialized Firestore Timestamp)
+      // Se for um objeto com seconds (Firestore Timestamp serializado)
       else if (prescription.date.seconds) {
         const date = new Date(prescription.date.seconds * 1000);
         formattedDate = date.toLocaleDateString("pt-BR");
       }
-      // If it's already a Date
+      // Se já for uma Date
       else if (prescription.date instanceof Date) {
         formattedDate = prescription.date.toLocaleDateString("pt-BR");
       }

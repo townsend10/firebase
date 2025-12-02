@@ -114,8 +114,13 @@ function PrescriptionCard({ prescription }: { prescription: Prescription }) {
 
   try {
     if (prescription.date) {
+      // Se for string (YYYY-MM-DD), adiciona hora para evitar problema de timezone
+      if (typeof prescription.date === "string") {
+        const date = new Date(prescription.date + "T12:00:00");
+        formattedDate = date.toLocaleDateString("pt-BR");
+      }
       // Se for um Timestamp do Firestore com método toDate
-      if (typeof prescription.date.toDate === "function") {
+      else if (typeof prescription.date.toDate === "function") {
         formattedDate = prescription.date.toDate().toLocaleDateString("pt-BR");
       }
       // Se for um objeto com seconds (Firestore Timestamp serializado)

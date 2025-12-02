@@ -3,6 +3,7 @@ import { Input } from "./ui/input";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Label } from "./ui/label";
+import { FormErrors } from "./form/form-errors";
 
 interface PhoneInputProps {
   id: string;
@@ -79,39 +80,31 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
     return (
       <div className="space-y-2">
-        {label && (
-          <Label htmlFor={id} className="text-sm font-medium">
-            {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </Label>
-        )}
-        <Input
-          onBlur={onBlur}
-          defaultValue={defaultValue}
-          ref={ref}
-          required={required}
-          name={id}
-          id={id}
-          value={phoneNumber}
-          onChange={formatPhone}
-          placeholder={placeholder || "(00) 00000-0000"}
-          type="tel"
-          disabled={pending || disabled}
-          className={cn("text-sm px-2 py-1 h-7", className)}
-          aria-describedby={`${id}-error`}
-          maxLength={15} // (00) 00000-0000
-        />
-        {errors && errors[id] && (
-          <div
-            id={`${id}-error`}
-            aria-live="polite"
-            className="text-xs text-destructive mt-1"
-          >
-            {errors[id]?.map((error: string) => (
-              <p key={error}>{error}</p>
-            ))}
-          </div>
-        )}
+        <div className="space-y-1">
+          {label ? (
+            <Label htmlFor={id} className="text-sm font-medium">
+              {label}
+              {required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+          ) : null}
+          <Input
+            onBlur={onBlur}
+            defaultValue={defaultValue}
+            ref={ref}
+            required={required}
+            name={id}
+            id={id}
+            value={phoneNumber}
+            onChange={formatPhone}
+            placeholder={placeholder || "(00) 00000-0000"}
+            type="tel"
+            disabled={pending || disabled}
+            className={cn("text-sm px-2 py-1 h-7", className)}
+            aria-describedby={`${id}-error`}
+            maxLength={15} // (00) 00000-0000
+          />
+        </div>
+        <FormErrors id={id} errors={errors} />
       </div>
     );
   }

@@ -67,9 +67,10 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       const querySearch = await getDocs(qSearch);
 
       searchResults = querySearch.docs.map((doc) => {
-        const { id, email, birthdayDate, cpf, name, phone } = doc.data();
+        const { id, email, birthdayDate, cpf, name, phone, uid } = doc.data();
         return {
           id: doc.id,
+          uid,
           email,
           birthdayDate,
           cpf,
@@ -77,9 +78,11 @@ const handler = async (data: InputType): Promise<ReturnType> => {
           phone,
         };
       });
+
+      return { data: searchResults };
     }
 
-    return { data: guests, query: searchResults };
+    return { data: guests };
   } catch (error) {
     console.error("Erro durante a recuperação de guests:", error);
 

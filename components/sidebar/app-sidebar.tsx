@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { UserProfile } from "../user-profile";
 import { getAuth } from "firebase/auth";
 import { useAction } from "@/hooks/use-action";
@@ -39,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 export function AppSidebar() {
   const { isLoggedIn, user } = useAuth();
   const { role, isAdmin, isGuest, loading: roleLoading } = useUserRole();
+  const pathname = usePathname(); // Track current route
   const [phone, setPhone] = useState("");
   const [googleName, setGoogleName] = useState<string | null | undefined>("");
   const [image, setImage] = useState("");
@@ -151,11 +153,18 @@ export function AppSidebar() {
       },
 
       // Admin-only items
-   
+
       {
         href: "/schedules",
         label: "Todos Agendamentos",
         icon: <Contact className="h-4 w-4" />,
+        roles: ["admin"],
+        section: "Administração",
+      },
+      {
+        href: "/admin-book-appointment",
+        label: "Novo Agendamento",
+        icon: <CalendarPlus className="h-4 w-4" />,
         roles: ["admin"],
         section: "Administração",
       },
@@ -231,21 +240,25 @@ export function AppSidebar() {
               </SidebarGroupLabel>
               <SidebarGroupContent className="mt-2">
                 <SidebarMenu>
-                  {items.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          href={item.href}
-                          className={cn(
-                            "flex items-center p-3 rounded-lg transition"
-                          )}
-                        >
-                          {item.icon}
-                          {item.label}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {items.map((item) => {
+                    const isActive = pathname === item.href;
+
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton asChild isActive={isActive}>
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              "flex items-center p-3 rounded-lg transition"
+                            )}
+                          >
+                            {item.icon}
+                            {item.label}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </div>

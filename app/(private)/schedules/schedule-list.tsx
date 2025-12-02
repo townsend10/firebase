@@ -132,7 +132,7 @@ export const ScheduleList = () => {
               cadastrado{schedules.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <Button onClick={() => router.push("/list")}>
+          <Button onClick={() => router.push("/admin-book-appointment")}>
             <CalendarPlus className="mr-2 h-4 w-4" />
             Novo Agendamento
           </Button>
@@ -141,7 +141,8 @@ export const ScheduleList = () => {
         {/* Schedules Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {schedules?.map((schedule) => {
-            const formtData = new Date(schedule.date);
+            // Adiciona T12:00:00 para evitar problemas de fuso horário (cair no dia anterior)
+            const formtData = new Date(schedule.date + "T12:00:00");
 
             // Usar helpers para calcular status automaticamente
             const calculatedStatus = calculateScheduleStatus(schedule);

@@ -156,7 +156,9 @@ function AppointmentCard({
   appointment: Appointment;
   isPast?: boolean;
 }) {
-  const formattedDate = new Date(appointment.date).toLocaleDateString("pt-BR");
+  const formattedDate = new Date(
+    appointment.date + "T12:00:00"
+  ).toLocaleDateString("pt-BR");
   const isConfirmed = appointment.status === "confirm";
   const isCancelled = appointment.status === "cancelled";
 
