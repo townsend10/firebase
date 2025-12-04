@@ -50,13 +50,15 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     }
 
     if (docSnap.exists()) {
-      const { id, name, phone, imageUrl } = docSnap.data();
+      const { id, name, phone, imageUrl,email,cpf } = docSnap.data();
 
       data = {
         id: docSnap.id,
         imageUrl,
         name,
         phone,
+        email,
+        cpf,
       };
     } else {
       console.log("No such document!");

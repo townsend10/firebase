@@ -27,6 +27,7 @@ import {
   FileText,
   ClipboardList,
   Users,
+  FileCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -67,6 +68,8 @@ export function AppSidebar() {
         id: auth.currentUser.uid,
         name: "",
         phone: "",
+        email: "",
+        cpf: "",
       });
     }
   }, [userId, auth.currentUser?.uid, getUser]);
@@ -179,6 +182,20 @@ export function AppSidebar() {
         href: "/prescriptions",
         label: "Todos Atestados",
         icon: <ClipboardList className="h-4 w-4" />,
+        roles: ["admin"],
+        section: "Administração",
+      },
+      {
+        href: "/laudo",
+        label: "Laudos com IA",
+        icon: <FileCheck className="h-4 w-4" />,
+        roles: ["admin"],
+        section: "Administração",
+      },
+      {
+        href: "/users",
+        label: "Gerenciar Usuários",
+        icon: <Users className="h-4 w-4" />,
         roles: ["admin"],
         section: "Administração",
       },
