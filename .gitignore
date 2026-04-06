@@ -28,7 +28,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+
+
+*.local
 .env
 
 # vercel
@@ -38,3 +40,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# .agent files
+.agent/**
+.agent/
+
+# temporary markdown docs
+*.md
+!README.md
+
+# mcp server
+mcp-server/**
+
+# claude code
+.claude/
+
+# test files
+_tests_/
+deletetest/

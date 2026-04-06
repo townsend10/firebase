@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";
@@ -18,19 +18,32 @@ import { ReturnType, InputType } from "./types";
 const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
-  const { currentUser } = getAuth(firebaseApp);
+  const { currentUser } = auth;
 
   if (!currentUser) {
     return {
-      error: "Usuario nao conectado",
+      error: "Usuário não autenticado",
     };
   }
 
-  if (!auth) {
+  // Verificar se é admin
+  const userDoc = await getDocs(
+    query(collection(db, "users"), where("uid", "==", currentUser.uid))
+  );
+
+  if (userDoc.empty) {
     return {
-      error: "Erro ao inicializar o firebase",
+      error: "Usuário não encontrado",
     };
   }
+
+  const userData = userDoc.docs[0].data();
+  if (userData.role !== "admin") {
+    return {
+      error: "Apenas administradores podem deletar pacientes",
+    };
+  }
+
   const { id } = data;
   const schedulesRef = collection(db, "schedules");
   const q = query(schedulesRef, where("pacientId", "==", id));
@@ -78,7 +91,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     console.error("Erro ao deletar os pacientes:", error);
 
     return {
-      error: `${error}`,
+      error: "Erro interno ao deletar pacientes. Tente novamente mais tarde.",
     };
   }
 };

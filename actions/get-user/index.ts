@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import { Pacient } from "@/types";
 

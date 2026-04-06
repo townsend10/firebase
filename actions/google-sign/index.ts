@@ -1,14 +1,8 @@
-// "use server";
+"use server";
 import { createSafeAction } from "@/lib/create-safe-action";
 import { CreateUser } from "./schema";
 import { InputType, ReturnType } from "./types";
-import {
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import {
   addDoc,
@@ -18,14 +12,11 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { error } from "console";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const provider = new GoogleAuthProvider();
   const db = getFirestore(firebaseApp);
-  const storage = getStorage();
 
   if (!auth) {
     return {
@@ -40,28 +31,39 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     // Check if user already exists in Firestore
     const userQuery = query(
       collection(db, "users"),
-      where("uid", "==", user.uid) // ✅ Buscar pelo uid correto
+      where("uid", "==", user.uid),
     );
     const userDocs = await getDocs(userQuery);
 
     // If user doesn't exist, create a new user document
     if (userDocs.empty) {
       await addDoc(collection(db, "users"), {
-        uid: user.uid, // ✅ Vincular com Firebase Auth
+        uid: user.uid,
         name: user.displayName || "Usuário",
         email: user.email || "",
         phone: user.phoneNumber || "",
         imageUrl: user.photoURL || "",
-        role: "guest", // Default role for new users
+        role: "guest",
         createdAt: new Date().toISOString(),
       });
     }
 
-    // Return user data (works for both new and existing users)
     return { data: user };
   } catch (error) {
+    console.error("Erro no login com Google:", error);
+
+    if (error instanceof Object && "code" in error) {
+      const code = (error as { code: string }).code;
+      if (code === "auth/popup-closed-by-user") {
+        return { error: "Login cancelado" };
+      }
+      if (code === "auth/popup-blocked") {
+        return { error: "Popup bloqueado pelo navegador" };
+      }
+    }
+
     return {
-      error: `${error}`,
+      error: "Erro interno no login com Google. Tente novamente mais tarde.",
     };
   }
 };

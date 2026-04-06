@@ -1,6 +1,6 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { getAuth, onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import { useRouter } from "next/navigation";
 
@@ -12,28 +12,28 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Create auth instance outside component to avoid re-creation on renders
+const auth = getAuth(firebaseApp);
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const auth = getAuth(firebaseApp);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica mudanças no estado de autenticação
-    const unsubscribe = onAuthStateChanged(auth, (currentUser: any) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      setInitialLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup ao desmontar
-  }, [auth]);
+    return () => unsubscribe();
+  }, []);
 
   const logout = async () => {
     try {
       await signOut(auth);
-      // Force redirect to home page after logout
       router.push("/");
       router.refresh();
     } catch (error) {
@@ -41,8 +41,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const value = useMemo(
+    () => ({ user, loading: initialLoading, logout }),
+    [user, initialLoading, logout],
+  );
+
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,5 @@
-// "use server";
+"use server";
+import { GetSchedules } from "./schema";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";
@@ -11,18 +12,17 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { GetSchedules } from "./schema";
 import { InputType, ReturnType, Schedule } from "./types";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
 
-  const { currentUser } = getAuth(firebaseApp);
+  const { currentUser } = auth;
 
   if (!currentUser) {
     return {
-      error: "desconectado",
+      error: "Usuário deslogado",
     };
   }
 
@@ -57,7 +57,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       schedulesQuery = query(
         collection(db, "schedules"),
         where("pacientId", "==", currentUserUid),
-        limit(100)
+        limit(100),
       );
     }
 
@@ -70,7 +70,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
     // Buscar nomes dos pacientes através de referência usando UID
     const uniquePacientUids = Array.from(
-      new Set(schedulesData.map((s: any) => s.pacientId).filter(Boolean))
+      new Set(schedulesData.map((s: any) => s.pacientId).filter(Boolean)),
     );
 
     console.log("UIDs únicos de pacientes encontrados:", uniquePacientUids);
@@ -81,7 +81,6 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     await Promise.all(
       uniquePacientUids.map(async (pacientUid: unknown) => {
         try {
-          // Query para encontrar o usuário pelo campo 'uid'
           const usersRef = collection(db, "users");
           const q = query(usersRef, where("uid", "==", pacientUid as string));
           const userSnapshot = await getDocs(q);
@@ -91,15 +90,17 @@ const handler = async (data: InputType): Promise<ReturnType> => {
             const userName = userData.name;
             patientMap[pacientUid as string] = userName;
             console.log(
-              `✅ Paciente encontrado - UID: ${pacientUid}, Nome: ${userName}`
+              `✅ Paciente encontrado - UID: ${pacientUid}, Nome: ${userName}`,
             );
           } else {
-            console.warn(`❌ Usuário não encontrado para UID: ${pacientUid}`);
+            console.warn(
+              `❌ Usuário não encontrado para UID: ${pacientUid}`,
+            );
           }
         } catch (e) {
           console.error(`❌ Erro ao buscar usuário ${pacientUid}:`, e);
         }
-      })
+      }),
     );
 
     console.log("📋 Mapa de pacientes:", patientMap);
@@ -109,7 +110,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
       const pacientName = patientMap[pacientId] || "Paciente não encontrado";
 
       console.log(
-        `📅 Agendamento ${s.id} - pacientId: ${pacientId}, nome: ${pacientName}`
+        `📅 Agendamento ${s.id} - pacientId: ${pacientId}, nome: ${pacientName}`,
       );
 
       return {
@@ -128,7 +129,8 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     console.error("Erro durante a recuperação de agendamentos:", error);
 
     return {
-      error: `${error}`,
+      error:
+        "Erro interno ao buscar agendamentos. Tente novamente mais tarde.",
     };
   }
 };

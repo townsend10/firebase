@@ -7,9 +7,7 @@ import { PhoneInput } from "@/components/phone-input";
 import { CpfInput } from "@/components/cpf-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { SquareUser, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ElementRef, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -17,20 +15,11 @@ import { toast } from "sonner";
 export const RegisterModal = () => {
   const formRef = useRef<ElementRef<"form">>(null);
   const router = useRouter();
-  const [image, setImage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setImage(fileURL);
-    }
-  };
 
   const {
     execute: loginWithEmail,
-    fieldErrors: EmailErrors,
+    fieldErrors: FieldErrors,
     error,
   } = useAction(createUser, {
     onSuccess: (data) => {
@@ -42,7 +31,7 @@ export const RegisterModal = () => {
     },
   });
 
-  const { execute: loginWithGoogle, fieldErrors } = useAction(googleSign, {
+  const { execute: loginWithGoogle } = useAction(googleSign, {
     onSuccess: (data) => {
       toast.success(`Google login realizado com sucesso`);
       router.push("/profile");
@@ -58,12 +47,11 @@ export const RegisterModal = () => {
     const name = formData.get("name") as string;
     const phone = formData.get("phone") as string;
     const cpf = formData.get("cpf") as string;
-    const imageFile = formData.get("imageFile") as any;
 
-    loginWithEmail({ email, password, name, phone, imageFile, cpf });
+    loginWithEmail({ email, password, name, phone, cpf });
   };
 
-  const GoogleLogin = async () => {
+  const GoogleLogin = () => {
     loginWithGoogle({});
   };
 
@@ -92,7 +80,7 @@ export const RegisterModal = () => {
                   type="email"
                   className="bg-background h-12 text-lg"
                   placeholder="Seu melhor email"
-                  errors={EmailErrors}
+                  errors={FieldErrors}
                 />
               </div>
 
@@ -103,7 +91,7 @@ export const RegisterModal = () => {
                     id="password"
                     className="bg-background h-12 text-lg pr-12"
                     placeholder="Crie uma senha segura"
-                    errors={EmailErrors}
+                    errors={FieldErrors}
                   />
                   <button
                     type="button"
@@ -124,7 +112,7 @@ export const RegisterModal = () => {
                   id="name"
                   className="bg-background h-12 text-lg"
                   placeholder="Seu nome completo"
-                  errors={EmailErrors}
+                  errors={FieldErrors}
                 />
               </div>
 
@@ -134,7 +122,7 @@ export const RegisterModal = () => {
                   type="tel"
                   className="bg-background h-12 text-lg"
                   placeholder="Seu telefone"
-                  errors={EmailErrors}
+                  errors={FieldErrors}
                 />
               </div>
 
@@ -143,33 +131,8 @@ export const RegisterModal = () => {
                   id="cpf"
                   className="bg-background h-12 text-lg"
                   placeholder="Seu CPF (opcional)"
-                  errors={EmailErrors}
+                  errors={FieldErrors}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <FormInput
-                      id="imageFile"
-                      type="file"
-                      className="bg-background pt-2"
-                      placeholder="Sua foto"
-                      errors={EmailErrors}
-                      onChange={handleFileChange}
-                    />
-                  </div>
-                  {image && (
-                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary">
-                      <Image
-                        src={image}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -197,7 +160,7 @@ export const RegisterModal = () => {
                 size="lg"
               >
                 Google
-                <SquareUser className="ml-2 w-5 h-5" />
+                <SquareUser className="ml-2 w-5 w-5" />
               </Button>
             </div>
           </form>

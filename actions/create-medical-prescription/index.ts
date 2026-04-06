@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";

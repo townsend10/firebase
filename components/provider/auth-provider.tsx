@@ -23,8 +23,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const auth = getAuth(firebaseApp);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+
+      // Sync Firebase Auth with server session cookie
+      if (user) {
+        try {
+          const token = await user.getIdToken(true);
+          await fetch("/api/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+        } catch (error) {
+          console.error("Erro ao sincronizar sessão com servidor:", error);
+        }
+      } else {
+        try {
+          await fetch("/api/session", { method: "DELETE" });
+        } catch (error) {
+          console.error("Erro ao limpar sessão:", error);
+        }
+      }
     });
 
     setPersistence(auth, browserLocalPersistence)

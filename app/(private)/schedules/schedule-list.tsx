@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAction } from "@/hooks/use-action";
-import { useAuth } from "@/hooks/use-current-user";
 import {
   calculateScheduleStatus,
   getCalculatedBadgeVariant,
@@ -42,7 +41,6 @@ import { toast } from "sonner";
 
 export const ScheduleList = () => {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: schedules, execute: getSchedulings } = useAction(getSchedules, {
@@ -80,10 +78,6 @@ export const ScheduleList = () => {
       pacientId: "",
     });
   }, [getSchedulings]);
-
-  if (!isLoggedIn) {
-    return null;
-  }
 
   const onClick = (scheduleId: string) => {
     router.push(`/schedule/${scheduleId}/edit`);

@@ -2,16 +2,12 @@ import { z } from "zod";
 
 // Função para validar CPF
 const validateCPF = (cpf: string): boolean => {
-  // Remove formatação
   cpf = cpf.replace(/[^\d]/g, "");
 
-  // Verifica se tem 11 dígitos
   if (cpf.length !== 11) return false;
 
-  // Verifica se todos os dígitos são iguais
   if (/^(\d)\1{10}$/.test(cpf)) return false;
 
-  // Validação do primeiro dígito verificador
   let sum = 0;
   for (let i = 0; i < 9; i++) {
     sum += parseInt(cpf.charAt(i)) * (10 - i);
@@ -20,7 +16,6 @@ const validateCPF = (cpf: string): boolean => {
   if (digit >= 10) digit = 0;
   if (digit !== parseInt(cpf.charAt(9))) return false;
 
-  // Validação do segundo dígito verificador
   sum = 0;
   for (let i = 0; i < 10; i++) {
     sum += parseInt(cpf.charAt(i)) * (11 - i);
@@ -60,22 +55,26 @@ export const CreateUser = z
         invalid_type_error: "Telefone obrigatório",
       })
       .min(10, "Telefone deve ter no mínimo 10 dígitos")
-      .max(15, "Telefone inválido"),
+      .max(15, "Telefone inválido")
+      .regex(/^\d+$/, "Telefone deve conter apenas números"),
 
     cpf: z
       .string()
       .optional()
       .refine(
         (val) => {
-          if (!val) return true; // Se não preenchido, é válido (opcional)
+          if (!val) return true;
           return validateCPF(val);
         },
         {
           message: "CPF inválido",
-        }
-      ),
-
-    imageFile: z.any(),
+        },
+      )
+      .transform((val) => {
+        if (!val) return val;
+        const clean = val.replace(/\D/g, "");
+        return `${clean.substring(0, 3)}.***.***-${clean.substring(9)}`;
+      }),
   })
   .superRefine(({ password }, checkPassComplexity) => {
     const containsUppercase = (ch: string) => /[A-Z]/.test(ch);

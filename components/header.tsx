@@ -74,6 +74,8 @@ export const Header = () => {
       // id: `${paramas.userId}`,
       // id: userId?.uid as string,
       id: auth.currentUser?.uid as string,
+      cpf: "",
+      email: "",
 
       name: "",
       phone: "",
@@ -148,43 +150,11 @@ export const Header = () => {
   // }, [currentRouter.pathname]);
 
   return (
-    // <div className="flex flex-col bg-gray-900 text-white h-screen w-full max-w-sm  overflow-hidden">
-    //   <div className="flex items-center justify-between p-4">
-    //     <h1 className="text-2xl font-bold text-yellow-300">Clinica</h1>
-    //     <LogOutButton />
-    //   </div>
-    //   <Separator />
-
-    //   <div className="flex-grow overflow-y-auto">
-    //     {router.map((route) => (
-    //       <Link
-    //         href={route.href}
-    //         key={route.href}
-    //         className="flex items-center my-2 px-4 py-2 hover:bg-gray-700"
-    //       >
-    //         {route.icon}
-    //         <div className="ml-2">{route.label}</div>
-    //       </Link>
-    //     ))}
-    //   </div>
-
-    //   <div className="flex items-center justify-start p-4">
-    //     {isLoggedIn ? (
-    //       <div>
-    //         <UserProfile
-    //           firstName={googleName}
-    //           logout={logout}
-    //           picture={image}
-    //         />
-    //       </div>
-    //     ) : null}
-    //   </div>
-    // </div>
 
     <ProtectedRoute>
       <div
         className={`flex flex-col  m-0 text-muted-foreground dark:text-white min-h-screen overflow-hidden transition-all duration-300 shadow-lg ${
-          isExpanded ? "w-64" : "w-20"
+          isExpanded ? "w-64" : "w-3"
         } relative`}
       >
         <div className="flex items-center p-4">
@@ -199,7 +169,7 @@ export const Header = () => {
             onClick={() => navigateHome.push("/home")}
             className={cn(
               "flex items-center font-extrabold text-2xl dark:text-white p-3 rounded-lg  transition cursor-pointer",
-              isExpanded ? "justify-start space-x-4" : "justify-center"
+              isExpanded ? "justify-start space-x-4" : "justify-center",
             )}
           >
             {isExpanded ? "Clínica Médica" : "CM"}{" "}
@@ -220,7 +190,7 @@ export const Header = () => {
                 isExpanded ? "justify-start space-x-4" : "justify-center",
                 pathname === route.href
                   ? "bg--500  hover:bg-gray-300 dark:bg-gray-700" // Estilo para item ativo
-                  : "hover:bg-gray-300 dark:hover:bg-gray-700" // Estilo para item inativo no hover
+                  : "hover:bg-gray-300 dark:hover:bg-gray-700", // Estilo para item inativo no hover
               )}
             >
               {route.icon}

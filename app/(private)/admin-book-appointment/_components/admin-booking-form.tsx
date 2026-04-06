@@ -119,25 +119,7 @@ export function AdminBookingForm() {
     const password = formData.get("password") as string;
     const phone = formData.get("phone") as string;
     const cpf = formData.get("cpf") as string;
-    // createUser action expects imageFile, but we might not have one here.
-    // We can pass a dummy file or modify createUser to make it optional.
-    // For now, let's try to pass a dummy blob or empty file if possible, or just null if the action handles it.
-    // Looking at createUser action: await uploadBytes(imageRef, imageFile); -> It might fail if imageFile is missing.
-    // We should probably create a default image file here.
-
-    // Create a 1x1 pixel transparent gif as default image
-    const pixel = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-    const byteCharacters = atob(pixel);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const imageFile = new File([byteArray], "default-profile.gif", {
-      type: "image/gif",
-    });
-
-    executeCreateUser({ name, email, password, phone, cpf, imageFile });
+    executeCreateUser({ name, email, password, phone, cpf });
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {

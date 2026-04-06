@@ -22,6 +22,7 @@ export interface User {
   cpf?: string;
   birthdayDate?: string;
   createdAt: string;
+  imageUrl?: string;
 }
 
 export interface Schedule {

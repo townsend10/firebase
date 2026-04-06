@@ -1,4 +1,5 @@
 "use client";
+
 import { useAuth } from "./provider/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -12,14 +13,24 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const router = useRouter();
 
   useEffect(() => {
+    // Only redirect after loading is complete and user is confirmed null
     if (!loading && !user) {
-      router.push("/login"); // Redireciona se não estiver logado
+      router.replace("/login");
     }
   }, [user, loading, router]);
 
-  if (loading) return <p>Carregando...</p>;
+  // While loading, show skeleton instead of rendering children or nothing
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
-  return user ? children : null;
+  if (!user) return null;
+
+  return children;
 };
 
 export default ProtectedRoute;

@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import { Pacient } from "@/types";
 
@@ -20,17 +20,19 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const { currentUser } = getAuth(firebaseApp);
-  // if (!currentUser) {
-  //   return {
-  //     error: "ERRO AO CARREGAR ESSA PAGIN",
-  //   };
-  // }
+
+  if (!currentUser) {
+    return {
+      error: "Usuário não autenticado",
+    };
+  }
 
   if (!auth) {
     return {
       error: "Erro ao inicializar o firebase",
     };
   }
+
   const { id } = data;
 
   try {
@@ -38,24 +40,26 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     const docSnap = await getDoc(prescriptionRef);
 
     if (docSnap.exists()) {
-      const { id, content, name, days,date } = docSnap.data();
-      data = {
-        id,
-        content,
-        name,
-date,
-        days,
+      const { content, name, days, date } = docSnap.data();
+      return {
+        data: {
+          id: docSnap.id,
+          content,
+          name,
+          days,
+          date,
+        },
       };
     } else {
-      console.log("No such document!");
+      return {
+        error: "Atestado não encontrado",
+      };
     }
-
-    return { data: data };
   } catch (error) {
-    console.error("Erro durante a recuperação de pacientes:", error);
+    console.error("Erro ao recuperar atestado:", error);
 
     return {
-      error: `${error}`,
+      error: "Erro interno ao recuperar atestado. Tente novamente mais tarde.",
     };
   }
 };

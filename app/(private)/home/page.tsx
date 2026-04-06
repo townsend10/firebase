@@ -1,18 +1,21 @@
 "use client";
 
-import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { HomePrivate } from "./_components/home-private";
+import { useEffect } from "react";
+import { getAuth } from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
+import { HomePrivate } from "./_components/home-private";
 import { RoleGuard } from "@/components/auth/role-guard";
 
 const PrivateHomePage = () => {
-  const { currentUser } = getAuth(firebaseApp);
   const router = useRouter();
 
-  if (!currentUser) {
-    router.push("/");
-  }
+  useEffect(() => {
+    const { currentUser } = getAuth(firebaseApp);
+    if (!currentUser) {
+      router.replace("/login");
+    }
+  }, [router]);
 
   return (
     <RoleGuard allowedRoles={["admin", "guest"]}>

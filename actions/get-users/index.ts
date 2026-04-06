@@ -1,14 +1,10 @@
-// "use server";
+"use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { Pacient } from "@/types";
 
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {
-  addDoc,
   collection,
-  doc,
-  getDoc,
   getDocs,
   getFirestore,
   query,
@@ -16,42 +12,51 @@ import {
 } from "firebase/firestore";
 import { getUsers } from "./schema";
 import { ReturnType, InputType } from "./types";
-import { error } from "console";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
-  const { currentUser } = getAuth(firebaseApp);
 
-  console.log("CURRENTUSER: " + currentUser?.email);
-
-  if (!auth) {
+  const { currentUser } = auth;
+  if (!currentUser) {
     return {
-      error: "Erro ao inicializar o firebase",
+      error: "Usuário deslogado",
     };
   }
-  const { id } = data;
 
   try {
+    // Check if user is admin
+    const usersRef = collection(db, "users");
+    const userQuery = query(usersRef, where("uid", "==", currentUser.uid));
+    const userSnapshot = await getDocs(userQuery);
+
+    if (userSnapshot.empty) {
+      return { error: "Usuário não encontrado no sistema" };
+    }
+
+    const userData = userSnapshot.docs[0].data();
+    const userRole = userData.role || "guest";
+
+    if (userRole !== "admin") {
+      return { error: "Apenas administradores podem ver todos os usuários" };
+    }
+
     const querySnapshot = await getDocs(collection(db, "users"));
     const users = querySnapshot.docs.map((doc) => {
       const { name, phone, id } = doc.data();
-
-      console.log(doc.id);
 
       return {
         id: doc.id,
         name,
         phone,
-
-        // data: doc.data(),
       };
     });
+
     const { name, phone } = data;
     const q = query(
       collection(db, "users"),
       where("name", "==", name),
-      where("phone", "==", phone)
+      where("phone", "==", phone),
     );
     const querySearch = await getDocs(q);
 
@@ -69,7 +74,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     console.error("Erro durante a recuperação de pacientes:", error);
 
     return {
-      error: `${error}`,
+      error: "Erro interno ao buscar usuários. Tente novamente mais tarde.",
     };
   }
 };
