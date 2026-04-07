@@ -74,11 +74,7 @@ export const Header = () => {
       // id: `${paramas.userId}`,
       // id: userId?.uid as string,
       id: auth.currentUser?.uid as string,
-      cpf: "",
-      email: "",
-
-      name: "",
-      phone: "",
+      userId: auth.currentUser?.uid as string,
     });
   }, [userId, auth.currentUser?.uid, getUser]);
 
@@ -150,7 +146,6 @@ export const Header = () => {
   // }, [currentRouter.pathname]);
 
   return (
-
     <ProtectedRoute>
       <div
         className={`flex flex-col  m-0 text-muted-foreground dark:text-white min-h-screen overflow-hidden transition-all duration-300 shadow-lg ${

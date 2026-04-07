@@ -71,9 +71,7 @@ export const HeaderMobile = () => {
       // id: `${paramas.userId}`,
       // id: userId?.uid as string,
       id: auth.currentUser?.uid as string,
-
-      name: "",
-      phone: "",
+      userId: auth.currentUser?.uid as string,
     });
   }, [userId, auth.currentUser?.uid, getUser]);
 
