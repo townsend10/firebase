@@ -12,7 +12,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Instância do Firebase Auth
+// Instância do Firebase fora do componente para evitar re-instanciação
 const auth = getAuth(firebaseApp);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -22,7 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [initialLoading, setInitialLoading] = useState(true);
   const router = useRouter();
 
-  // Correção: Memorizando a função logout para manter a identidade referencial
+  // 1. Corrigido: Usando useCallback para que a função logout tenha uma 
+  // identidade estável e não mude a cada renderização.
   const logout = useCallback(async () => {
     try {
       await signOut(auth);
@@ -42,7 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => unsubscribe();
   }, []);
 
-  // Agora o logout só mudará se o 'router' (raramente) mudar
+  // 2. O useMemo agora funciona corretamente porque 'logout' só muda 
+  // se o 'router' mudar (o que é raro).
   const value = useMemo(
     () => ({ 
       user, 
