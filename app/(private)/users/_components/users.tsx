@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 export const Users = () => {
   const router = useRouter();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, userId, loading: roleLoading } = useUserRole();
 
   const {
     data: users,
@@ -40,9 +40,10 @@ export const Users = () => {
         id: "",
         name: "",
         phone: "",
+        userId: userId || "",
       });
     }
-  }, [isAdmin, getUsers]);
+  }, [isAdmin, userId, getUsers]);
 
   if (roleLoading) {
     return (

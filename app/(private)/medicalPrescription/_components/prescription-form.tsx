@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAction } from "@/hooks/use-action";
+import { useUserRole } from "@/hooks/use-user-role";
 import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -29,6 +30,7 @@ import { maskCpf } from "@/lib/mask-cpf";
 export const PrescriptionForm = () => {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const { userId } = useUserRole();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   // Fetch guests (users)
@@ -37,14 +39,8 @@ export const PrescriptionForm = () => {
   });
 
   useEffect(() => {
-    fetchGuests({
-      birthdayDate: "",
-      cpf: "",
-      name: "",
-      email: "",
-      phone: "",
-    });
-  }, [fetchGuests]);
+    fetchGuests({ userId: userId || "" });
+  }, [fetchGuests, userId]);
 
   const { execute, fieldErrors } = useAction(createMedicalPrescription, {
     onSuccess: (data) => {
@@ -87,7 +83,8 @@ export const PrescriptionForm = () => {
       date,
       name,
       days,
-      userId: selectedUserId, // Pass selected user ID
+      userId: selectedUserId,
+      adminId: userId || "",
     });
   };
 

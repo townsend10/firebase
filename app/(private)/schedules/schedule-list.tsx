@@ -37,29 +37,26 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useUserRole } from "@/hooks/use-user-role";
 import { toast } from "sonner";
 
 export const ScheduleList = () => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { userId, loading: roleLoading } = useUserRole();
 
   const { data: schedules, execute: getSchedulings } = useAction(getSchedules, {
     onSuccess: () => {},
     onError: (error) => {
-      router.push("/");
+      toast.error("Erro ao carregar agendamentos: " + error);
     },
   });
 
   const { execute: executeDelete } = useAction(deleteSchedule, {
     onSuccess: () => {
       toast.success("Agendamento excluído com sucesso");
-      // Recarregar a lista
       getSchedulings({
-        date: "",
-        hour: "",
-        name: "",
-        status: "cancelled",
-        pacientId: "",
+        userId: userId || "",
       });
       setIsDeleting(false);
     },
@@ -70,22 +67,20 @@ export const ScheduleList = () => {
   });
 
   useEffect(() => {
-    getSchedulings({
-      date: "",
-      hour: "",
-      name: "",
-      status: "cancelled",
-      pacientId: "",
-    });
-  }, [getSchedulings]);
+    if (!roleLoading) {
+      getSchedulings({
+        userId: userId || "",
+      });
+    }
+  }, [getSchedulings, userId, roleLoading]);
 
   const onClick = (scheduleId: string) => {
     router.push(`/schedule/${scheduleId}/edit`);
   };
 
   const handleDelete = (e: React.MouseEvent, scheduleId: string) => {
-    e.stopPropagation(); // Previne navegação ao clicar no delete
-    executeDelete({ id: scheduleId });
+    e.stopPropagation();
+    executeDelete({ id: scheduleId, userId: userId || "" });
   };
 
   // Empty state

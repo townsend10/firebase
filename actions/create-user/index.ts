@@ -8,6 +8,8 @@ import {
 } from "firebase/auth";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { rateLimit } from "@/lib/rate-limit";
+import { headers } from "next/headers";
 
 const FIREBASE_ERRORS: Record<string, string> = {
   "auth/email-already-in-use": "Este email já está em uso",
@@ -24,6 +26,13 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     return {
       error: "Erro ao inicializar o firebase",
     };
+  }
+
+  // Rate limit: 3 attempts per 10 minutes per IP
+  const ip = headers().get("x-forwarded-for") || "unknown";
+  const check = rateLimit(`create-user:${ip}`, 3, 10 * 60 * 1000);
+  if (!check.allowed) {
+    return { error: `Muitas tentativas. Aguarde ${check.remainingMinutes} minuto(s).` };
   }
 
   const { email, password, name, phone, cpf } = data;

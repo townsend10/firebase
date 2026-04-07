@@ -2,6 +2,7 @@
 
 import { getSchedule } from "@/actions/get-schedule";
 import { useAction } from "@/hooks/use-action";
+import { useUserRole } from "@/hooks/use-user-role";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 export default function EditSchedulePage() {
   const params = useParams();
   const router = useRouter();
+  const { userId } = useUserRole();
   const [scheduleData, setScheduleData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,10 +34,10 @@ export default function EditSchedulePage() {
 
   useEffect(() => {
     if (params.scheduleId) {
-      execute({ id: params.scheduleId as string });
+      execute({ id: params.scheduleId as string, userId: userId || "" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.scheduleId]);
+  }, [params.scheduleId, userId]);
 
   if (isLoading) {
     return <LoadingSpinner text="Carregando agendamento..." />;

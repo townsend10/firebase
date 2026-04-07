@@ -79,7 +79,8 @@ export function EditScheduleForm({ initialData }: EditScheduleFormProps) {
       id: initialData.id,
       date: dateString,
       hour: hourString,
-      status: initialData.status as any, // Mantém o status original, a menos que queiramos mudar
+      status: initialData.status as any,
+      userId: userId || "",
     });
   };
 

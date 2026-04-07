@@ -58,7 +58,7 @@ const getInitials = (name: string | null | undefined): string => {
 export const UserInfo = () => {
   const params = useParams();
   const router = useRouter();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, loading: roleLoading, userId } = useUserRole();
 
   const [userData, setUserData] = useState<any>(null);
 
@@ -89,17 +89,15 @@ export const UserInfo = () => {
     if (isAdmin && params.userId) {
       getUser({
         id: `${params.userId}`,
-        name: "",
-        phone: "",
-        email: "",
-        cpf: "",
+        userId: userId || "",
       });
     }
-  }, [isAdmin, params.userId, getUser]);
+  }, [isAdmin, params.userId, getUser, userId]);
 
   const onDeleteUser = () => {
     deleteUser({
       id: `${params.userId}`,
+      userId: userId || "",
     });
   };
 

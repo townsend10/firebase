@@ -122,3 +122,66 @@ export const GUEST_APPOINTMENT_RULES = {
   ALLOW_CANCELLATION: true,
   ALLOW_RESCHEDULE: true,
 };
+
+/**
+ * Server-side role verification — fetches user role from Firestore
+ * using the Admin SDK (trusted, server-only, no client SDK).
+ */
+
+import { adminDb } from "@/app/api/firebase/firebase-admin";
+
+export async function getServerSideRole(userId: string): Promise<{ role: string | null }> {
+  try {
+    const usersRef = adminDb.collection("users");
+
+    // Try to fetch by document ID first (most common case: id = document ID from useUserRole)
+    const docSnap = await usersRef.doc(userId).get();
+    if (docSnap.exists) {
+      const data = docSnap.data()!;
+      return { role: data.role || "guest" };
+    }
+
+    // Fallback: search by uid field (in case id is the Firebase Auth UID)
+    const snapshot = await usersRef.where("uid", "==", userId).get();
+
+    if (snapshot.empty) {
+      return { role: null };
+    }
+
+    const userData = snapshot.docs[0].data();
+    return { role: userData.role || "guest" };
+  } catch {
+    return { role: null };
+  }
+}
+
+/**
+ * Server action guards — receive TRUSTED server-side verified role
+ */
+
+export function requireAdmin(userRole: string) {
+  if (userRole !== "admin") {
+    return { error: "Acesso negado. Apenas administradores podem realizar esta acao." };
+  }
+}
+
+export function requireAuth(userRole: string) {
+  if (!userRole) {
+    return { error: "Usuario nao autenticado." };
+  }
+}
+
+export function requireOwnership(
+  userRole: string,
+  userId: string,
+  resourceOwnerId: string | undefined,
+) {
+  if (!userRole || !userId) {
+    return { error: "Usuario nao autenticado." };
+  }
+  if (userRole === "admin") return;
+  if (resourceOwnerId !== userId) {
+    return { error: "Voce nao tem permissao para acessar este recurso." };
+  }
+}
+

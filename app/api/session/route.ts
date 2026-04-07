@@ -1,17 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth as getFirebaseAdminAuth } from "firebase-admin/auth";
-import { initializeApp, getApps, cert, ServiceAccount } from "firebase-admin/app";
-
-// Initialize firebase admin for token verification
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_SERVICE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_SERVICE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-  });
-}
+import { adminAuth } from "@/app/api/firebase/firebase-admin";
 
 const SESSION_COOKIE = "__session";
 
@@ -23,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Token obrigatório" }, { status: 400 });
     }
 
-    const auth = getFirebaseAdminAuth();
+    const auth = adminAuth;
     const decoded = await auth.verifyIdToken(token);
     const expiresInDays = 14;
 

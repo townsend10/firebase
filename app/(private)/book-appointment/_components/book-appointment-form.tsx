@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 export function BookAppointmentForm() {
   const router = useRouter();
-  const { userId, role } = useUserRole();
+  const { userId } = useUserRole();
   const [time, setTime] = useState("");
 
   const { execute, fieldErrors } = useAction(createSchedule, {
@@ -70,7 +70,6 @@ export function BookAppointmentForm() {
       hour: hourString,
       pacientId: userId,
       userId: userId,
-      userRole: role || "guest",
     });
   };
 

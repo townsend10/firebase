@@ -1,53 +1,27 @@
 "use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth } from "firebase/auth";
 import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 import { DeleteUser } from "./schema";
 import { ReturnType, InputType } from "./types";
+import { requireAdmin, getServerSideRole } from "@/lib/permissions";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
+  const { id, userId } = data;
   const db = getFirestore(firebaseApp);
-  const { currentUser } = auth;
 
-  if (!currentUser) {
-    return {
-      error: "Usuário não autenticado",
-    };
-  }
+  const { role } = await getServerSideRole(userId);
+  if (!role) return { error: "Usuario nao encontrado." };
 
-  // Verificar se é admin
-  const userDoc = await getDocs(
-    query(collection(db, "users"), where("uid", "==", currentUser.uid))
-  );
+  const adminCheck = requireAdmin(role);
+  if (adminCheck) return adminCheck;
 
-  if (userDoc.empty) {
-    return {
-      error: "Usuário não encontrado",
-    };
-  }
-
-  const userData = userDoc.docs[0].data();
-  if (userData.role !== "admin") {
-    return {
-      error: "Apenas administradores podem deletar usuários",
-    };
-  }
-
-  const { id } = data;
-  let user;
   try {
     await deleteDoc(doc(db, "users", id));
-
-    return { data: user };
+    return { data: undefined };
   } catch (error) {
-    console.error("Erro ao deletar usuário:", error);
-
-    return {
-      error: "Erro interno ao deletar usuário. Tente novamente mais tarde.",
-    };
+    console.error("Erro ao deletar usuario:", error);
+    return { error: "Erro interno ao deletar usuario. Tente novamente mais tarde." };
   }
 };
 

@@ -3,6 +3,7 @@
 import { getAllPrescriptions } from "@/actions/get-all-prescriptions";
 import { deletePrescription } from "@/actions/delete-prescription";
 import { useAction } from "@/hooks/use-action";
+import { useUserRole } from "@/hooks/use-user-role";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,7 @@ export function AllPrescriptionsList() {
     Prescription[]
   >([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const { userId } = useUserRole();
 
   const { data, execute, isLoading } = useAction(getAllPrescriptions, {
     onSuccess: (data) => {
@@ -83,12 +85,12 @@ export function AllPrescriptionsList() {
 
   const handleDelete = (id: string) => {
     setDeletedId(id);
-    executeDelete({ id });
+    executeDelete({ id, userId: userId || "" });
   };
 
   useEffect(() => {
-    execute({});
-  }, [execute]);
+    execute({ currentUserId: userId || "" });
+  }, [execute, userId]);
 
   // Filter prescriptions based on search term
   useEffect(() => {

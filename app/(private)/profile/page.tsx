@@ -1,16 +1,12 @@
 "use client";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
+import { useAuth } from "@/hooks/use-current-user";
 import { ProfilePerfil } from "./_components/profile-perfil";
-import { useRouter } from "next/navigation";
-import { getAuth } from "firebase/auth";
 
 const ProfilePage = () => {
-  const { currentUser } = getAuth(firebaseApp);
+  const { loading } = useAuth();
 
-  const router = useRouter();
-
-  if (!currentUser) {
-    router.push("/");
+  if (loading) {
+    return null;
   }
 
   return (

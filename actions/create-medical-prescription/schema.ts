@@ -22,4 +22,5 @@ export const CreateMedicalPrescription = z.object({
     invalid_type_error: "Digite um invalido",
   }),
   userId: z.string().optional(), // ID do usuário (paciente) para vincular
+  adminId: z.string().min(1, "UserId obrigatório"), // ID do admin autenticado
 });

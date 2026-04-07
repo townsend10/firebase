@@ -2,43 +2,29 @@
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
 
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth } from "firebase/auth";
 import {
   collection,
   getDocs,
   getFirestore,
   query,
   where,
+  limit,
 } from "firebase/firestore";
 import { GetPrescriptions } from "./schema";
 import { InputType, ReturnType } from "./types";
+import { getServerSideRole } from "@/lib/permissions";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
+  const { id, content, name, userId } = data;
 
-  // if (!isLoggedIn) {
-  //   return {
-  //     error: "Usuario não conectado",
-  //   };
-  // }
-  const { currentUser } = getAuth(firebaseApp);
+  const { role } = await getServerSideRole(userId);
+  if (!role) return { error: "Usuario nao encontrado." };
 
-  if (!currentUser) {
-    return {
-      error: "desconectado",
-    };
-  }
-
-  if (!auth) {
-    return {
-      error: "Erro ao inicializar o firebase",
-    };
-  }
-  // unsubscribe();
-  let pacientId;
   try {
-    const querySnapshot = await getDocs(collection(db, "prescriptions"));
+    const querySnapshot = await getDocs(
+      query(collection(db, "prescriptions"), limit(100))
+    );
     const prescriptions = querySnapshot.docs.map((doc) => {
       const { content, name } = doc.data();
 
@@ -46,10 +32,9 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         id: doc.id,
         content,
         name,
-        // data: doc.data(),
       };
     });
-    const { content, name } = data;
+
     const q = query(
       collection(db, "prescriptions"),
       where("content", "==", content),
@@ -67,7 +52,7 @@ const handler = async (data: InputType): Promise<ReturnType> => {
 
     return { data: prescriptions, query: searchResults };
   } catch (error) {
-    console.error("Erro durante a recuperação de pacientes:", error);
+    console.error("Erro durante a recuperação de prescrições:", error);
 
     return {
       error: `${error}`,

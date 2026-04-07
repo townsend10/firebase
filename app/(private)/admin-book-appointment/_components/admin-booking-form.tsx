@@ -32,7 +32,7 @@ import { CpfInput } from "@/components/cpf-input";
 
 export function AdminBookingForm() {
   const router = useRouter();
-  const { userId: adminId } = useUserRole();
+  const { userId: adminId, role } = useUserRole();
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [time, setTime] = useState("");
@@ -49,8 +49,8 @@ export function AdminBookingForm() {
   });
 
   useEffect(() => {
-    fetchGuests({});
-  }, [fetchGuests]);
+    fetchGuests({ userId: adminId || "" });
+  }, [fetchGuests, adminId]);
 
   useEffect(() => {
     if (guests) {
@@ -158,9 +158,8 @@ export function AdminBookingForm() {
       date,
       hour: time,
       pacientId: selectedUser.uid || selectedUser.id,
-      userId: adminId || "admin", // Created by admin
-      status: "confirm", // Admin bookings are auto-confirmed usually? Or waiting? Let's default to confirm or waiting based on logic. Prompt didn't specify, but admin usually confirms.
-      userRole: "admin",
+      userId: adminId || "admin",
+      status: "confirm",
     });
   };
 

@@ -1,81 +1,46 @@
 "use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth } from "firebase/auth";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { getUsers } from "./schema";
 import { ReturnType, InputType } from "./types";
+import { requireAuth, getServerSideRole } from "@/lib/permissions";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
+  const { userId } = data;
   const db = getFirestore(firebaseApp);
 
-  const { currentUser } = auth;
-  if (!currentUser) {
-    return {
-      error: "Usuário deslogado",
-    };
-  }
+  const { role } = await getServerSideRole(userId);
+  if (!role) return { error: "Usuario nao encontrado." };
+
+  const authCheck = requireAuth(role);
+  if (authCheck) return authCheck;
 
   try {
-    // Check if user is admin
-    const usersRef = collection(db, "users");
-    const userQuery = query(usersRef, where("uid", "==", currentUser.uid));
-    const userSnapshot = await getDocs(userQuery);
-
-    if (userSnapshot.empty) {
-      return { error: "Usuário não encontrado no sistema" };
+    // Admin → all users, guest → only themselves
+    let querySnapshot;
+    if (role === "admin") {
+      querySnapshot = await getDocs(collection(db, "users"));
+    } else {
+      const q = query(collection(db, "users"), where("uid", "==", userId));
+      querySnapshot = await getDocs(q);
     }
 
-    const userData = userSnapshot.docs[0].data();
-    const userRole = userData.role || "guest";
+    const users = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      name: doc.data().name,
+      email: doc.data().email,
+      phone: doc.data().phone,
+      cpf: doc.data().cpf,
+      role: doc.data().role,
+      imageUrl: doc.data().imageUrl,
+      birthdayDate: doc.data().birthdayDate,
+    }));
 
-    if (userRole !== "admin") {
-      return { error: "Apenas administradores podem ver todos os usuários" };
-    }
-
-    const querySnapshot = await getDocs(collection(db, "users"));
-    const users = querySnapshot.docs.map((doc) => {
-      const { name, phone, id } = doc.data();
-
-      return {
-        id: doc.id,
-        name,
-        phone,
-      };
-    });
-
-    const { name, phone } = data;
-    const q = query(
-      collection(db, "users"),
-      where("name", "==", name),
-      where("phone", "==", phone),
-    );
-    const querySearch = await getDocs(q);
-
-    const searchResults = querySearch.docs.map((doc) => {
-      const { id, name, phone } = doc.data();
-      return {
-        name,
-        phone,
-        id,
-      };
-    });
-
-    return { data: users, query: searchResults };
+    return { data: users };
   } catch (error) {
-    console.error("Erro durante a recuperação de pacientes:", error);
-
-    return {
-      error: "Erro interno ao buscar usuários. Tente novamente mais tarde.",
-    };
+    console.error("Erro ao recuperar usuarios:", error);
+    return { error: "Erro interno ao buscar usuarios. Tente novamente mais tarde." };
   }
 };
 

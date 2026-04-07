@@ -7,4 +7,5 @@ export const GetGuests = z.object({
   cpf: z.string().optional(),
   phone: z.string().optional(),
   id: z.string().optional(),
+  userId: z.string().min(1, "UserId obrigatório"),
 });

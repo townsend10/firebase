@@ -1,71 +1,40 @@
 "use server";
 import { createSafeAction } from "@/lib/create-safe-action";
-import { CreateUser } from "./schema";
+import { GoogleSignIn } from "./schema";
 import { InputType, ReturnType } from "./types";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  getFirestore,
-  query,
-  where,
-} from "firebase/firestore";
+import { adminAuth, adminDb } from "@/app/api/firebase/firebase-admin";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
-  const provider = new GoogleAuthProvider();
-  const db = getFirestore(firebaseApp);
-
-  if (!auth) {
-    return {
-      error: "Erro ao inicializar o firebase",
-    };
-  }
+  const { idToken } = data;
 
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    const decoded = await adminAuth.verifyIdToken(idToken);
 
-    // Check if user already exists in Firestore
-    const userQuery = query(
-      collection(db, "users"),
-      where("uid", "==", user.uid),
-    );
-    const userDocs = await getDocs(userQuery);
+    const uid = decoded.uid;
+    const name = decoded.name || data.name;
+    const email = decoded.email || data.email;
 
-    // If user doesn't exist, create a new user document
-    if (userDocs.empty) {
-      await addDoc(collection(db, "users"), {
-        uid: user.uid,
-        name: user.displayName || "Usuário",
-        email: user.email || "",
-        phone: user.phoneNumber || "",
-        imageUrl: user.photoURL || "",
+    // Check if user already exists in Firestore using Admin SDK
+    const usersRef = adminDb.collection("users");
+    const snapshot = await usersRef.where("uid", "==", uid).get();
+
+    if (snapshot.empty) {
+      await usersRef.add({
+        uid,
+        name: name || "Usuário",
+        email: email || "",
+        phone: "",
+        imageUrl: decoded.picture || "",
         role: "guest",
         createdAt: new Date().toISOString(),
       });
     }
 
-    return { data: user };
+    return { data: { uid, name: name || null, email: email || null } };
   } catch (error) {
-    console.error("Erro no login com Google:", error);
-
-    if (error instanceof Object && "code" in error) {
-      const code = (error as { code: string }).code;
-      if (code === "auth/popup-closed-by-user") {
-        return { error: "Login cancelado" };
-      }
-      if (code === "auth/popup-blocked") {
-        return { error: "Popup bloqueado pelo navegador" };
-      }
-    }
-
-    return {
-      error: "Erro interno no login com Google. Tente novamente mais tarde.",
-    };
+    console.error("Erro no registro do Google Sign-In:", error);
+    return { error: "Erro ao concluir o login com Google. Tente novamente mais tarde." };
   }
 };
 
-export const googleSign = createSafeAction(CreateUser, handler);
+export const googleSign = createSafeAction(GoogleSignIn, handler);

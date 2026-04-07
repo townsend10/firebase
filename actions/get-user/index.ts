@@ -1,75 +1,47 @@
 "use server";
 import { firebaseApp } from "@/app/api/firebase/firebase-connect";
-import { Pacient } from "@/types";
-
 import { createSafeAction } from "@/lib/create-safe-action";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  getFirestore,
-} from "firebase/firestore";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { getUser } from "./schema";
 import { ReturnType, InputType } from "./types";
-import { error } from "console";
+import { getServerSideRole } from "@/lib/permissions";
 
 const handler = async (data: InputType): Promise<ReturnType> => {
-  const auth = getAuth(firebaseApp);
+  const { id, userId } = data;
   const db = getFirestore(firebaseApp);
-  const { currentUser } = getAuth(firebaseApp);
-  // if (!currentUser) {
-  //   return {
-  //     error: "ERRO AO CARREGAR ESSA PAGIN",
-  //   };
-  // }
 
-  if (!currentUser) {
-    return {
-      error: "no user",
-    };
-  }
-  if (!auth) {
-    return {
-      error: "Erro ao inicializar o firebase",
-    };
-  }
-  const { id } = data;
+  const { role } = await getServerSideRole(userId);
+  if (!role) return { error: "Usuario nao encontrado." };
 
   try {
     const userRef = doc(db, "users", id);
     const docSnap = await getDoc(userRef);
-    const user = auth.currentUser;
 
-    if (!user) {
-      return {
-        error: "No user",
-      };
+    if (!docSnap.exists()) {
+      return { error: "Usuário não encontrado" };
     }
 
-    if (docSnap.exists()) {
-      const { id, name, phone, imageUrl,email,cpf } = docSnap.data();
-
-      data = {
-        id: docSnap.id,
-        imageUrl,
-        name,
-        phone,
-        email,
-        cpf,
-      };
-    } else {
-      console.log("No such document!");
-    }
-
-    return { data: data };
-  } catch (error) {
-    console.error("Erro durante a recuperação de pacientes:", error);
+    const userData = docSnap.data();
 
     return {
-      error: `${error}`,
+      data: {
+        id: docSnap.id,
+        uid: userData.uid,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        cpf: userData.cpf,
+        imageUrl: userData.imageUrl,
+        role: userData.role,
+        birthdayDate: userData.birthdayDate,
+        createdAt: userData.createdAt,
+      },
+    };
+  } catch (error) {
+    console.error("Erro durante a recuperação de usuário:", error);
+
+    return {
+      error: "Erro interno ao buscar usuário. Tente novamente mais tarde.",
     };
   }
 };

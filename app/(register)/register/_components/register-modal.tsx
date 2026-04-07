@@ -10,6 +10,10 @@ import { useAction } from "@/hooks/use-action";
 import { SquareUser, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ElementRef, useRef, useState } from "react";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { firebaseApp } from "@/app/api/firebase/firebase-connect";
+
+const auth = getAuth(firebaseApp);
 import { toast } from "sonner";
 
 export const RegisterModal = () => {
@@ -22,19 +26,17 @@ export const RegisterModal = () => {
     fieldErrors: FieldErrors,
     error,
   } = useAction(createUser, {
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      try {
+        const idToken = await data.getIdToken();
+        await fetch("/api/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: idToken }),
+        });
+      } catch {}
       toast.success(`${data.email} foi criado com sucesso`);
       router.push("/home");
-    },
-    onError: (error) => {
-      toast.error(error);
-    },
-  });
-
-  const { execute: loginWithGoogle } = useAction(googleSign, {
-    onSuccess: (data) => {
-      toast.success(`Google login realizado com sucesso`);
-      router.push("/profile");
     },
     onError: (error) => {
       toast.error(error);
@@ -51,8 +53,48 @@ export const RegisterModal = () => {
     loginWithEmail({ email, password, name, phone, cpf });
   };
 
-  const GoogleLogin = () => {
-    loginWithGoogle({});
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Register user in Firestore and create session
+      const idToken = await user.getIdToken();
+      const { error } = await googleSign({
+        idToken,
+        name: user.displayName,
+        email: user.email,
+      });
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      // Create session cookie for middleware protection
+      await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken }),
+      });
+
+      toast.success(`Bem vindo ${user.displayName || "usuário"}`);
+      router.push("/home");
+    } catch (error: unknown) {
+      if (error instanceof Object && "code" in error) {
+        const code = (error as { code: string }).code;
+        if (code === "auth/popup-closed-by-user") {
+          toast.info("Login cancelado");
+          return;
+        }
+        if (code === "auth/popup-blocked") {
+          toast.error("Popup bloqueado pelo navegador");
+          return;
+        }
+      }
+      toast.error("Erro ao fazer login com Google. Tente novamente.");
+    }
   };
 
   return (
@@ -155,7 +197,7 @@ export const RegisterModal = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={GoogleLogin}
+                onClick={handleGoogleLogin}
                 className="w-full text-lg h-12"
                 size="lg"
               >

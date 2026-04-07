@@ -5,9 +5,12 @@ import { loginUser } from "@/actions/login-user";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
 import { useAction } from "@/hooks/use-action";
-import { useAuth } from "@/hooks/use-current-user";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { firebaseApp } from "@/app/api/firebase/firebase-connect";
+
+const auth = getAuth(firebaseApp);
 
 export const LoginModal = () => {
   const router = useRouter();
@@ -17,20 +20,18 @@ export const LoginModal = () => {
   //   router.push("/home");
   // }
 
-  const { execute: loginWithGoogle, fieldErrors: googleFieldErrors } =
-    useAction(googleSign, {
-      onSuccess: (data) => {
-        // toast.success(`Bem vindo ${data.displayName}`);
-      },
-      onError: (error) => {
-        toast.error(error);
-      },
-    });
-
   const { execute, fieldErrors } = useAction(loginUser, {
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      try {
+        const idToken = await data.getIdToken();
+        await fetch("/api/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: idToken }),
+        });
+      } catch {}
       toast.success(`Bem vindo ${data.email}`);
-      router.push("/profile");
+      router.push("/home");
     },
     onError: (error) => {
       toast.error(error);
@@ -44,9 +45,47 @@ export const LoginModal = () => {
     execute({ email, password });
   };
 
-  const GoogleLogin = async () => {
-    loginWithGoogle({});
-    router.push("/home");
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Register user in Firestore and create session
+      const idToken = await user.getIdToken();
+      const { data, error } = await googleSign({
+        idToken,
+        name: user.displayName,
+        email: user.email,
+      });
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      // Create session cookie for middleware protection
+      await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken }),
+      });
+
+      router.push("/home");
+    } catch (error: unknown) {
+      if (error instanceof Object && "code" in error) {
+        const code = (error as { code: string }).code;
+        if (code === "auth/popup-closed-by-user") {
+          toast.info("Login cancelado");
+          return;
+        }
+        if (code === "auth/popup-blocked") {
+          toast.error("Popup bloqueado pelo navegador");
+          return;
+        }
+      }
+      toast.error("Erro ao fazer login com Google. Tente novamente.");
+    }
   };
   return (
     <div
@@ -106,7 +145,7 @@ export const LoginModal = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={GoogleLogin}
+                onClick={handleGoogleLogin}
                 className="w-full text-lg h-12"
                 size="lg"
               >
